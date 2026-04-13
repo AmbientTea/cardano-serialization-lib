@@ -34,7 +34,8 @@ macro_rules! impl_num_op {
             type Output = $wrapper;
 
             fn $method(self, rhs: Self) -> Self::Output {
-                Self(self.0 $op rhs.0)
+                <Self as std::convert::TryFrom<$inner>>::try_from(self.0 $op rhs.0)
+                    .expect(concat!(stringify!($wrapper), "::", stringify!($method), " overflow"))
             }
         }
 
@@ -42,7 +43,8 @@ macro_rules! impl_num_op {
             type Output = $wrapper;
 
             fn $method(self, rhs: $inner) -> Self::Output {
-                Self(self.0 $op rhs)
+                <Self as std::convert::TryFrom<$inner>>::try_from(self.0 $op rhs)
+                    .expect(concat!(stringify!($wrapper), "::", stringify!($method), " overflow"))
             }
         }
     };
@@ -52,7 +54,7 @@ macro_rules! impl_num_ops {
     ($wrapper:ident, $inner:ty) => {
         impl std::iter::Sum for $wrapper {
             fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-                Self(iter.into_iter().map(|v| v.0).sum())
+                iter.into_iter().fold(num_traits::Zero::zero(), std::ops::Add::add)
             }
         }
 
@@ -80,25 +82,29 @@ macro_rules! impl_num_ops {
 
         impl num_traits::CheckedAdd for $wrapper {
             fn checked_add(&self, v: &Self) -> Option<Self> {
-                num_traits::CheckedAdd::checked_add(&self.0, &v.0).map(Self)
+                num_traits::CheckedAdd::checked_add(&self.0, &v.0)
+                    .and_then(|x| <Self as std::convert::TryFrom<$inner>>::try_from(x).ok())
             }
         }
 
         impl num_traits::CheckedSub for $wrapper {
             fn checked_sub(&self, v: &Self) -> Option<Self> {
-                num_traits::CheckedSub::checked_sub(&self.0, &v.0).map(Self)
+                num_traits::CheckedSub::checked_sub(&self.0, &v.0)
+                    .and_then(|x| <Self as std::convert::TryFrom<$inner>>::try_from(x).ok())
             }
         }
 
         impl num_traits::CheckedMul for $wrapper {
             fn checked_mul(&self, v: &Self) -> Option<Self> {
-                num_traits::CheckedMul::checked_mul(&self.0, &v.0).map(Self)
+                num_traits::CheckedMul::checked_mul(&self.0, &v.0)
+                    .and_then(|x| <Self as std::convert::TryFrom<$inner>>::try_from(x).ok())
             }
         }
 
         impl num_traits::CheckedDiv for $wrapper {
             fn checked_div(&self, v: &Self) -> Option<Self> {
-                num_traits::CheckedDiv::checked_div(&self.0, &v.0).map(Self)
+                num_traits::CheckedDiv::checked_div(&self.0, &v.0)
+                    .and_then(|x| <Self as std::convert::TryFrom<$inner>>::try_from(x).ok())
             }
         }
     };
@@ -286,6 +292,12 @@ mod tests {
         impl_num_into!(TestNum, u128, u64);
         impl_num_ops!(TestNum, u64);
         impl_num_ops!(@saturating TestNum, u64);
+
+        impl From<u64> for TestNum {
+            fn from(value: u64) -> Self {
+                Self(value)
+            }
+        }
 
         #[quickcheck]
         fn from(inner: u32) {
