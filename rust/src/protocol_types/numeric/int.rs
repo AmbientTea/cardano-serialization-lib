@@ -117,11 +117,10 @@ impl std::convert::TryFrom<i128> for Int {
     type Error = JsError;
 
     fn try_from(x: i128) -> Result<Self, Self::Error> {
-        if x.abs() > u64::MAX as i128 {
+        let limit = u64::MAX as i128;
+        if x > limit || x < -limit {
             return Err(JsError::from_str(&format!(
-                "{} out of bounds. Value (without sign) must fit within 4 bytes limit of {}",
-                x,
-                u64::MAX
+                "{x} out of bounds. Value magnitude must fit within u64::MAX ({limit})",
             )));
         }
         Ok(Self(x))
