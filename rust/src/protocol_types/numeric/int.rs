@@ -18,6 +18,11 @@ impl std::ops::Neg for Int {
     }
 }
 
+impl Int {
+    pub const MAX: Int = Int(u64::MAX as i128);
+    pub const NEG_MAX: Int = Int(-(u64::MAX as i128));
+}
+
 #[wasm_bindgen]
 impl Int {
     pub fn new(x: &BigNum) -> Self {
@@ -165,5 +170,138 @@ impl JsonSchema for Int {
     }
     fn is_referenceable() -> bool {
         String::is_referenceable()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod try_from {
+        use super::*;
+        use std::convert::TryFrom;
+
+        #[test]
+        fn accepts_positive_limit() {
+            assert_eq!(Int::try_from(u64::MAX as i128).unwrap(), Int::MAX);
+        }
+
+        #[test]
+        fn accepts_negative_limit() {
+            assert_eq!(Int::try_from(-(u64::MAX as i128)).unwrap(), Int::NEG_MAX);
+        }
+
+        #[test]
+        fn rejects_above_positive_limit() {
+            assert!(Int::try_from(u64::MAX as i128 + 1).is_err());
+        }
+
+        #[test]
+        fn rejects_below_negative_limit() {
+            assert!(Int::try_from(-(u64::MAX as i128) - 1).is_err());
+        }
+
+        #[test]
+        fn rejects_i128_min() {
+            assert!(Int::try_from(i128::MIN).is_err());
+        }
+    }
+
+    mod add {
+        use num::CheckedAdd;
+        use super::*;
+
+        #[test]
+        fn two_negatives() {
+            assert_eq!(Int(-5) + Int(-3), Int(-8));
+        }
+
+        #[test]
+        fn with_inner_type() {
+            assert_eq!(Int(5) + 3i128, Int(8));
+        }
+
+        #[test]
+        #[should_panic(expected = "Int::add overflow")]
+        fn panics_on_magnitude_overflow() {
+            let _ = Int::MAX + Int(1);
+        }
+
+        #[test]
+        #[should_panic(expected = "Int::add overflow")]
+        fn inner_type_panics_on_magnitude_overflow() {
+            let _ = Int::MAX + 1i128;
+        }
+
+        #[test]
+        fn checked_add_exceeds_positive_magnitude() {
+            assert_eq!(Int::MAX.checked_add(&Int(1)), None);
+        }
+
+        #[test]
+        fn checked_add_at_boundary() {
+            assert_eq!(Int(Int::MAX.0 - 1).checked_add(&Int(1)), Some(Int::MAX));
+        }
+    }
+
+    mod sub {
+        use num::CheckedSub;
+        use super::*;
+
+        #[test]
+        fn yields_negative() {
+            assert_eq!(Int(3) - Int(10), Int(-7));
+        }
+
+        #[test]
+        #[should_panic(expected = "Int::sub overflow")]
+        fn panics_on_magnitude_underflow() {
+            let _ = Int::NEG_MAX - Int(1);
+        }
+
+        #[test]
+        fn checked_sub_exceeds_negative_magnitude() {
+            assert_eq!(Int::NEG_MAX.checked_sub(&Int(1)), None);
+        }
+    }
+
+    mod mul {
+        use num::CheckedMul;
+        use super::*;
+
+        #[test]
+        fn negative_by_negative() {
+            assert_eq!(Int(-3) * Int(-4), Int(12));
+        }
+
+        #[test]
+        fn negative_by_positive() {
+            assert_eq!(Int(-3) * Int(4), Int(-12));
+        }
+
+        #[test]
+        fn checked_mul_exceeds_magnitude() {
+            assert_eq!(Int::MAX.checked_mul(&Int(2)), None);
+        }
+    }
+
+    mod div {
+        use super::*;
+        use num::CheckedDiv;
+
+        #[test]
+        fn checked_div_by_zero() {
+            assert_eq!(Int(42).checked_div(&Int(0)), None);
+        }
+    }
+
+    mod sum {
+        use super::*;
+
+        #[test]
+        #[should_panic(expected = "Int::add overflow")]
+        fn panics_on_magnitude_overflow() {
+            let _ = vec![Int::MAX, Int(1)].into_iter().sum::<Int>();
+        }
     }
 }
