@@ -793,6 +793,361 @@ fn value_empty_asset_equal() {
     assert_eq!(a, c);
 }
 
+mod value_checked_arithmetic {
+    use crate::*;
+    use num::CheckedAdd;
+    use num::CheckedSub;
+
+    fn policy(id: u8) -> PolicyID {
+        PolicyID::from([id; ScriptHash::BYTE_COUNT])
+    }
+
+    fn coin_value(coin: u64) -> Value {
+        Value::from(Coin::from(coin))
+    }
+
+    fn asset_value(coin: u64, policy_id: u8, entries: &[(&[u8], u64)]) -> Value {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        for &(name, amount) in entries {
+            a.insert(&AssetName(name.to_vec()), &BigNum(amount));
+        }
+        ma.insert(&policy(policy_id), &a);
+        Value::from(Coin::from(coin)) + Value::from(ma)
+    }
+
+    #[test]
+    fn checked_add_coin_only() {
+        assert_eq!(
+            CheckedAdd::checked_add(&coin_value(100), &coin_value(200)),
+            Some(coin_value(300))
+        );
+    }
+
+    #[test]
+    fn checked_add_coin_overflow() {
+        assert_eq!(
+            CheckedAdd::checked_add(&coin_value(u64::MAX), &coin_value(1)),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_add_both_have_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 0, &[(&[1], 5), (&[2], 20)]);
+        let result = CheckedAdd::checked_add(&a, &b).unwrap();
+        assert_eq!(result.coin, Coin::from(300u64));
+        let policy_assets = result.multiasset.unwrap().get(&policy(0)).unwrap();
+        assert_eq!(policy_assets.get(&AssetName(vec![1])).unwrap(), BigNum(15));
+        assert_eq!(policy_assets.get(&AssetName(vec![2])).unwrap(), BigNum(20));
+    }
+
+    #[test]
+    fn checked_add_one_side_none_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = coin_value(200);
+        let result = CheckedAdd::checked_add(&a, &b).unwrap();
+        assert_eq!(result.coin, Coin::from(300u64));
+        assert!(result.multiasset.is_some());
+
+        let result2 = CheckedAdd::checked_add(&b, &a).unwrap();
+        assert_eq!(result2.coin, Coin::from(300u64));
+        assert!(result2.multiasset.is_some());
+    }
+
+    #[test]
+    fn checked_add_both_none_multiasset() {
+        let result = CheckedAdd::checked_add(&coin_value(100), &coin_value(200)).unwrap();
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn checked_add_asset_overflow() {
+        let a = asset_value(0, 0, &[(&[1], u64::MAX)]);
+        let b = asset_value(0, 0, &[(&[1], 1)]);
+        assert_eq!(CheckedAdd::checked_add(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_coin_only() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(300), &coin_value(100)),
+            Some(coin_value(200))
+        );
+    }
+
+    #[test]
+    fn checked_sub_coin_underflow() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(100), &coin_value(200)),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_sub_both_have_multiasset() {
+        let a = asset_value(300, 0, &[(&[1], 10), (&[2], 20)]);
+        let b = asset_value(100, 0, &[(&[1], 3)]);
+        let result = CheckedSub::checked_sub(&a, &b).unwrap();
+        assert_eq!(result.coin, Coin::from(200u64));
+        let policy_assets = result.multiasset.unwrap().get(&policy(0)).unwrap();
+        assert_eq!(policy_assets.get(&AssetName(vec![1])).unwrap(), BigNum(7));
+        assert_eq!(policy_assets.get(&AssetName(vec![2])).unwrap(), BigNum(20));
+    }
+
+    #[test]
+    fn checked_sub_asset_underflow() {
+        let a = asset_value(300, 0, &[(&[1], 5)]);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_lhs_none_rhs_nonzero_multiasset() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(300), &asset_value(100, 0, &[(&[1], 10)])),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_sub_lhs_none_rhs_zero_multiasset() {
+        let b = Value {
+            coin: Coin::from(100u64),
+            multiasset: Some(MultiAsset::new()),
+        };
+        let result = CheckedSub::checked_sub(&coin_value(300), &b).unwrap();
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn checked_sub_lhs_has_multiasset_rhs_none() {
+        let result =
+            CheckedSub::checked_sub(&asset_value(300, 0, &[(&[1], 10)]), &coin_value(100)).unwrap();
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_some());
+    }
+
+    #[test]
+    fn add_operator() {
+        let result = asset_value(100, 0, &[(&[1], 10)]) + asset_value(200, 0, &[(&[1], 5)]);
+        assert_eq!(result.coin, Coin::from(300u64));
+    }
+
+    #[test]
+    #[should_panic(expected = "Value overflow")]
+    fn add_operator_panics_on_overflow() {
+        let _ = coin_value(u64::MAX) + coin_value(1);
+    }
+
+    #[test]
+    fn sub_operator() {
+        assert_eq!((coin_value(300) - coin_value(100)).coin, Coin::from(200u64));
+    }
+
+    #[test]
+    #[should_panic(expected = "Value underflow")]
+    fn sub_operator_panics_on_underflow() {
+        let _ = coin_value(100) - coin_value(200);
+    }
+
+    #[test]
+    fn checked_add_disjoint_policies() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 1, &[(&[1], 20)]);
+        let result = CheckedAdd::checked_add(&a, &b).unwrap();
+        assert_eq!(result.coin, Coin::from(300u64));
+        let ma = result.multiasset.unwrap();
+        assert_eq!(
+            ma.get(&policy(0))
+                .unwrap()
+                .get(&AssetName(vec![1]))
+                .unwrap(),
+            BigNum(10)
+        );
+        assert_eq!(
+            ma.get(&policy(1))
+                .unwrap()
+                .get(&AssetName(vec![1]))
+                .unwrap(),
+            BigNum(20)
+        );
+    }
+
+    #[test]
+    fn checked_sub_rhs_policy_not_in_lhs() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 1, &[(&[1], 5)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_rhs_asset_name_not_in_lhs() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 0, &[(&[2], 5)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_exact_assets_normalizes_to_none() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        let result = CheckedSub::checked_sub(&a, &b).unwrap();
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_none());
+    }
+}
+
+mod value_saturating_arithmetic {
+    use crate::*;
+    use num_traits::{SaturatingAdd, SaturatingSub};
+
+    fn policy(id: u8) -> PolicyID {
+        PolicyID::from([id; ScriptHash::BYTE_COUNT])
+    }
+
+    fn coin_value(coin: u64) -> Value {
+        Value::from(Coin::from(coin))
+    }
+
+    fn asset_value(coin: u64, policy_id: u8, entries: &[(&[u8], u64)]) -> Value {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        for &(name, amount) in entries {
+            a.insert(&AssetName(name.to_vec()), &BigNum(amount));
+        }
+        ma.insert(&policy(policy_id), &a);
+        Value::from(Coin::from(coin)) + Value::from(ma)
+    }
+
+    #[test]
+    fn saturating_sub_coin_clamps_to_zero() {
+        let result = coin_value(100).saturating_sub(&coin_value(200));
+        assert_eq!(result.coin, Coin::from(0u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn saturating_sub_coin_within_range() {
+        let result = coin_value(300).saturating_sub(&coin_value(100));
+        assert_eq!(result.coin, Coin::from(200u64));
+    }
+
+    #[test]
+    fn saturating_sub_assets_clamp_to_zero_and_removed() {
+        let a = asset_value(300, 0, &[(&[1], 5)]);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        let result = a.saturating_sub(&b);
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn saturating_sub_lhs_none_rhs_has_assets() {
+        let a = coin_value(300);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        let result = a.saturating_sub(&b);
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn saturating_sub_lhs_has_assets_rhs_none() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = coin_value(100);
+        let result = a.saturating_sub(&b);
+        assert_eq!(result.coin, Coin::from(200u64));
+        let ma = result.multiasset.unwrap();
+        assert_eq!(
+            ma.get(&policy(0))
+                .unwrap()
+                .get(&AssetName(vec![1]))
+                .unwrap(),
+            BigNum(10)
+        );
+    }
+
+    #[test]
+    fn saturating_sub_both_none_multiasset() {
+        let result = coin_value(300).saturating_sub(&coin_value(100));
+        assert_eq!(result.coin, Coin::from(200u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn saturating_sub_partial_asset_clamp() {
+        let a = asset_value(300, 0, &[(&[1], 5), (&[2], 20)]);
+        let b = asset_value(100, 0, &[(&[1], 10), (&[2], 3)]);
+        let result = a.saturating_sub(&b);
+        assert_eq!(result.coin, Coin::from(200u64));
+        let assets = result.multiasset.unwrap().get(&policy(0)).unwrap();
+        assert!(assets.get(&AssetName(vec![1])).is_none());
+        assert_eq!(assets.get(&AssetName(vec![2])).unwrap(), BigNum(17));
+    }
+
+    #[test]
+    fn saturating_add_coin_clamps_at_max() {
+        let result = coin_value(u64::MAX).saturating_add(&coin_value(100));
+        assert_eq!(result.coin, Coin::from(u64::MAX));
+    }
+
+    #[test]
+    fn saturating_add_asset_clamps_at_max() {
+        let a = asset_value(100, 0, &[(&[1], u64::MAX)]);
+        let b = asset_value(200, 0, &[(&[1], 100), (&[2], 5)]);
+        let result = a.saturating_add(&b);
+        assert_eq!(result.coin, Coin::from(300u64));
+        let assets = result.multiasset.unwrap().get(&policy(0)).unwrap();
+        assert_eq!(assets.get(&AssetName(vec![1])).unwrap(), BigNum(u64::MAX));
+        assert_eq!(assets.get(&AssetName(vec![2])).unwrap(), BigNum(5));
+    }
+
+    #[test]
+    fn saturating_add_one_side_none_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = coin_value(200);
+        let result = a.saturating_add(&b);
+        assert_eq!(result.coin, Coin::from(300u64));
+        assert!(result.multiasset.is_some());
+
+        let result2 = b.saturating_add(&a);
+        assert_eq!(result2.coin, Coin::from(300u64));
+        assert!(result2.multiasset.is_some());
+    }
+
+    #[test]
+    fn saturating_add_both_none_multiasset() {
+        let result = coin_value(100).saturating_add(&coin_value(200));
+        assert_eq!(result.coin, Coin::from(300u64));
+        assert!(result.multiasset.is_none());
+    }
+
+    #[test]
+    fn saturating_add_disjoint_policies() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 1, &[(&[1], 20)]);
+        let result = a.saturating_add(&b);
+        assert_eq!(result.coin, Coin::from(300u64));
+        let ma = result.multiasset.unwrap();
+        assert_eq!(
+            ma.get(&policy(0))
+                .unwrap()
+                .get(&AssetName(vec![1]))
+                .unwrap(),
+            BigNum(10)
+        );
+        assert_eq!(
+            ma.get(&policy(1))
+                .unwrap()
+                .get(&AssetName(vec![1]))
+                .unwrap(),
+            BigNum(20)
+        );
+    }
+}
+
 #[test]
 fn value_empty_asset_not_equal() {
     let a = Value {
