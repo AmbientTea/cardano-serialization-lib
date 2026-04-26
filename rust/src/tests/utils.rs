@@ -1,4 +1,28 @@
 use crate::*;
+use super::fakes::fake_policy_id;
+
+fn coin_value(coin: u64) -> Value {
+    Value::from(Coin::from(coin))
+}
+
+fn asset_value(coin: u64, policy_id: u8, entries: &[(&[u8], u64)]) -> Value {
+    multi_policy_value(coin, &[(policy_id, entries)])
+}
+
+fn multi_policy_value(coin: u64, policies: &[(u8, &[(&[u8], u64)])]) -> Value {
+    let mut ma = MultiAsset::new();
+    for &(policy_id, entries) in policies {
+        let mut a = Assets::new();
+        for &(name, amount) in entries {
+            a.insert(&AssetName(name.to_vec()), &BigNum(amount));
+        }
+        ma.insert(&fake_policy_id(policy_id), &a);
+    }
+    Value {
+        coin: Coin::from(coin),
+        multiasset: Some(ma),
+    }
+}
 
 #[test]
 fn subtract_values() {
@@ -791,6 +815,382 @@ fn value_empty_asset_equal() {
 
     assert_eq!(a, b);
     assert_eq!(a, c);
+}
+
+mod value_checked_arithmetic {
+    use super::*;
+    use num::{CheckedAdd, CheckedSub};
+
+    #[test]
+    fn checked_add_coin_only() {
+        assert_eq!(
+            CheckedAdd::checked_add(&coin_value(100), &coin_value(200)),
+            Some(coin_value(300))
+        );
+    }
+
+    #[test]
+    fn checked_add_coin_overflow() {
+        assert_eq!(
+            CheckedAdd::checked_add(&coin_value(u64::MAX), &coin_value(1)),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_add_both_have_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 0, &[(&[1], 5), (&[2], 20)]);
+        assert_eq!(
+            CheckedAdd::checked_add(&a, &b),
+            Some(asset_value(300, 0, &[(&[1], 15), (&[2], 20)]))
+        );
+    }
+
+    #[test]
+    fn checked_add_one_side_none_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = coin_value(200);
+        let expected = Some(asset_value(300, 0, &[(&[1], 10)]));
+        assert_eq!(CheckedAdd::checked_add(&a, &b), expected);
+        assert_eq!(CheckedAdd::checked_add(&b, &a), expected);
+    }
+
+    #[test]
+    fn checked_add_asset_overflow() {
+        let a = asset_value(0, 0, &[(&[1], u64::MAX)]);
+        let b = asset_value(0, 0, &[(&[1], 1)]);
+        assert_eq!(CheckedAdd::checked_add(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_coin_only() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(300), &coin_value(100)),
+            Some(coin_value(200))
+        );
+    }
+
+    #[test]
+    fn checked_sub_coin_underflow() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(100), &coin_value(200)),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_sub_both_have_multiasset() {
+        let a = asset_value(300, 0, &[(&[1], 10), (&[2], 20)]);
+        let b = asset_value(100, 0, &[(&[1], 3)]);
+        assert_eq!(
+            CheckedSub::checked_sub(&a, &b),
+            Some(asset_value(200, 0, &[(&[1], 7), (&[2], 20)]))
+        );
+    }
+
+    #[test]
+    fn checked_sub_asset_underflow() {
+        let a = asset_value(300, 0, &[(&[1], 5)]);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_lhs_none_rhs_nonzero_multiasset() {
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(300), &asset_value(100, 0, &[(&[1], 10)])),
+            None
+        );
+    }
+
+    #[test]
+    fn checked_sub_lhs_none_rhs_zero_multiasset() {
+        let b = Value {
+            coin: Coin::from(100u64),
+            multiasset: Some(MultiAsset::new()),
+        };
+        assert_eq!(
+            CheckedSub::checked_sub(&coin_value(300), &b),
+            Some(coin_value(200))
+        );
+    }
+
+    #[test]
+    fn checked_sub_lhs_has_multiasset_rhs_none() {
+        assert_eq!(
+            CheckedSub::checked_sub(&asset_value(300, 0, &[(&[1], 10)]), &coin_value(100)),
+            Some(asset_value(200, 0, &[(&[1], 10)]))
+        );
+    }
+
+    #[test]
+    fn add_operator() {
+        assert_eq!(
+            asset_value(100, 0, &[(&[1], 10)]) + asset_value(200, 0, &[(&[1], 5)]),
+            asset_value(300, 0, &[(&[1], 15)])
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "Value overflow")]
+    fn add_operator_panics_on_overflow() {
+        let _ = coin_value(u64::MAX) + coin_value(1);
+    }
+
+    #[test]
+    fn sub_operator() {
+        assert_eq!(coin_value(300) - coin_value(100), coin_value(200));
+    }
+
+    #[test]
+    #[should_panic(expected = "Value underflow")]
+    fn sub_operator_panics_on_underflow() {
+        let _ = coin_value(100) - coin_value(200);
+    }
+
+    #[test]
+    fn checked_add_disjoint_policies() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 1, &[(&[1], 20)]);
+        assert_eq!(
+            CheckedAdd::checked_add(&a, &b),
+            Some(multi_policy_value(
+                300,
+                &[(0, &[(&[1], 10)]), (1, &[(&[1], 20)])]
+            ))
+        );
+    }
+
+    #[test]
+    fn checked_sub_rhs_policy_not_in_lhs() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 1, &[(&[1], 5)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_rhs_asset_name_not_in_lhs() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 0, &[(&[2], 5)]);
+        assert_eq!(CheckedSub::checked_sub(&a, &b), None);
+    }
+
+    #[test]
+    fn checked_sub_multiple_overlapping_policies() {
+        let a = multi_policy_value(300, &[(0, &[(&[1], 10)]), (1, &[(&[1], 20)])]);
+        let b = multi_policy_value(100, &[(0, &[(&[1], 3)]), (1, &[(&[1], 5)])]);
+        assert_eq!(
+            CheckedSub::checked_sub(&a, &b),
+            Some(multi_policy_value(
+                200,
+                &[(0, &[(&[1], 7)]), (1, &[(&[1], 15)])]
+            ))
+        );
+    }
+
+    #[test]
+    fn checked_sub_exact_assets_normalizes_to_none() {
+        assert_eq!(
+            CheckedSub::checked_sub(
+                &asset_value(300, 0, &[(&[1], 10)]),
+                &asset_value(100, 0, &[(&[1], 10)])
+            ),
+            Some(coin_value(200))
+        );
+    }
+}
+
+mod value_saturating_arithmetic {
+    use super::*;
+    use num_traits::{SaturatingAdd, SaturatingSub};
+
+    #[test]
+    fn saturating_sub_coin_clamps_to_zero() {
+        assert_eq!(
+            coin_value(100).saturating_sub(&coin_value(200)),
+            coin_value(0)
+        );
+    }
+
+    #[test]
+    fn saturating_sub_coin_within_range() {
+        assert_eq!(
+            coin_value(300).saturating_sub(&coin_value(100)),
+            coin_value(200)
+        );
+    }
+
+    #[test]
+    fn saturating_sub_assets_clamp_to_zero_and_removed() {
+        let a = asset_value(300, 0, &[(&[1], 5)]);
+        let b = asset_value(100, 0, &[(&[1], 10)]);
+        assert_eq!(a.saturating_sub(&b), coin_value(200));
+    }
+
+    #[test]
+    fn saturating_sub_lhs_none_rhs_has_assets() {
+        assert_eq!(
+            coin_value(300).saturating_sub(&asset_value(100, 0, &[(&[1], 10)])),
+            coin_value(200)
+        );
+    }
+
+    #[test]
+    fn saturating_sub_lhs_has_assets_rhs_none() {
+        assert_eq!(
+            asset_value(300, 0, &[(&[1], 10)]).saturating_sub(&coin_value(100)),
+            asset_value(200, 0, &[(&[1], 10)])
+        );
+    }
+
+    #[test]
+    fn saturating_sub_partial_asset_clamp() {
+        let a = asset_value(300, 0, &[(&[1], 5), (&[2], 20)]);
+        let b = asset_value(100, 0, &[(&[1], 10), (&[2], 3)]);
+        assert_eq!(a.saturating_sub(&b), asset_value(200, 0, &[(&[2], 17)]));
+    }
+
+    #[test]
+    fn saturating_add_coin_clamps_at_max() {
+        assert_eq!(
+            coin_value(u64::MAX).saturating_add(&coin_value(100)),
+            coin_value(u64::MAX)
+        );
+    }
+
+    #[test]
+    fn saturating_add_asset_clamps_at_max() {
+        let a = asset_value(100, 0, &[(&[1], u64::MAX)]);
+        let b = asset_value(200, 0, &[(&[1], 100), (&[2], 5)]);
+        assert_eq!(
+            a.saturating_add(&b),
+            asset_value(300, 0, &[(&[1], u64::MAX), (&[2], 5)])
+        );
+    }
+
+    #[test]
+    fn saturating_add_one_side_none_multiasset() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = coin_value(200);
+        let expected = asset_value(300, 0, &[(&[1], 10)]);
+        assert_eq!(a.saturating_add(&b), expected);
+        assert_eq!(b.saturating_add(&a), expected);
+    }
+
+    #[test]
+    fn saturating_add_both_none_multiasset() {
+        assert_eq!(
+            coin_value(100).saturating_add(&coin_value(200)),
+            coin_value(300)
+        );
+    }
+
+    #[test]
+    fn saturating_sub_disjoint_policies() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 1, &[(&[1], 5)]);
+        assert_eq!(a.saturating_sub(&b), asset_value(200, 0, &[(&[1], 10)]));
+    }
+
+    #[test]
+    fn saturating_sub_rhs_asset_name_not_in_lhs() {
+        let a = asset_value(300, 0, &[(&[1], 10)]);
+        let b = asset_value(100, 0, &[(&[2], 5)]);
+        assert_eq!(a.saturating_sub(&b), asset_value(200, 0, &[(&[1], 10)]));
+    }
+
+    #[test]
+    fn saturating_add_overlapping_assets() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 0, &[(&[1], 5)]);
+        assert_eq!(a.saturating_add(&b), asset_value(300, 0, &[(&[1], 15)]));
+    }
+
+    #[test]
+    fn saturating_add_disjoint_policies() {
+        let a = asset_value(100, 0, &[(&[1], 10)]);
+        let b = asset_value(200, 1, &[(&[1], 20)]);
+        assert_eq!(
+            a.saturating_add(&b),
+            multi_policy_value(300, &[(0, &[(&[1], 10)]), (1, &[(&[1], 20)])])
+        );
+    }
+}
+
+mod value_sub_components {
+    use super::*;
+
+    #[test]
+    fn sub_coin_from_coin_only_value() {
+        let v = coin_value(150) - Coin::from(50u64);
+        assert_eq!(v, coin_value(100));
+    }
+
+    #[test]
+    fn sub_coin_from_value_with_assets() {
+        let v = asset_value(150, 0, &[(&[1], 10)]) - Coin::from(50u64);
+        assert_eq!(v, asset_value(100, 0, &[(&[1], 10)]));
+    }
+
+    #[test]
+    fn sub_multiasset_from_value_with_assets() {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        a.insert(&AssetName(vec![1]), &BigNum(4));
+        ma.insert(&fake_policy_id(0), &a);
+        let v = asset_value(100, 0, &[(&[1], 10)]) - ma;
+        assert_eq!(v, asset_value(100, 0, &[(&[1], 6)]));
+    }
+
+    #[test]
+    fn sub_multiasset_fully_removes_zeroed_asset() {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        a.insert(&AssetName(vec![1]), &BigNum(10));
+        ma.insert(&fake_policy_id(0), &a);
+        let v = asset_value(100, 0, &[(&[1], 10)]) - ma;
+        assert_eq!(v, coin_value(100));
+    }
+}
+
+mod value_add_components {
+    use super::*;
+
+    #[test]
+    fn add_coin_to_coin_only_value() {
+        let v = coin_value(100) + Coin::from(50u64);
+        assert_eq!(v, coin_value(150));
+    }
+
+    #[test]
+    fn add_coin_to_value_with_assets() {
+        let v = asset_value(100, 0, &[(&[1], 10)]) + Coin::from(50u64);
+        assert_eq!(v, asset_value(150, 0, &[(&[1], 10)]));
+    }
+
+    #[test]
+    fn add_multiasset_to_coin_only_value() {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        a.insert(&AssetName(vec![1]), &BigNum(10));
+        ma.insert(&fake_policy_id(0), &a);
+        let v = coin_value(100) + ma;
+        assert_eq!(v, asset_value(100, 0, &[(&[1], 10)]));
+    }
+
+    #[test]
+    fn add_multiasset_to_value_with_assets() {
+        let mut ma = MultiAsset::new();
+        let mut a = Assets::new();
+        a.insert(&AssetName(vec![2]), &BigNum(20));
+        ma.insert(&fake_policy_id(1), &a);
+        let v = asset_value(100, 0, &[(&[1], 10)]) + ma;
+        assert_eq!(
+            v,
+            multi_policy_value(100, &[(0, &[(&[1], 10)]), (1, &[(&[2], 20)])])
+        );
+    }
 }
 
 #[test]
