@@ -35,6 +35,9 @@ jobs:
       - name: rust:test
         run: |
           npm run rust:test
+      - name: rust:check-fmt
+        run: |
+          npm run rust:check-fmt
       - name: rust:build-nodejs
         run: |
           npm run rust:build-nodejs
