@@ -1,7 +1,7 @@
-use schemars::JsonSchema;
-use crate::{Ed25519KeyHash, Ed25519Signature, JsError, wasm_bindgen};
 use crate::chain_crypto::bech32::Bech32;
 use crate::crypto::blake2b224;
+use crate::{wasm_bindgen, Ed25519KeyHash, Ed25519Signature, JsError};
+use schemars::JsonSchema;
 
 /// ED25519 key used as public key
 #[wasm_bindgen]
@@ -63,8 +63,8 @@ impl PublicKey {
 
 impl serde::Serialize for PublicKey {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&self.to_bech32())
     }
@@ -72,8 +72,8 @@ impl serde::Serialize for PublicKey {
 
 impl<'de> serde::de::Deserialize<'de> for PublicKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let s = <String as serde::de::Deserialize>::deserialize(deserializer)?;
         PublicKey::from_bech32(&s).map_err(|_e| {

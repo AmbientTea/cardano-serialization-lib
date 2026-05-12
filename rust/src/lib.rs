@@ -24,23 +24,30 @@ extern crate num_derive;
 use std::convert::TryInto;
 use std::io::{BufRead, Seek, Write};
 
-#[cfg(any(not(all(target_arch = "wasm32", not(target_os = "emscripten"))), feature = "dont-expose-wasm"))]
+#[cfg(any(
+    not(all(target_arch = "wasm32", not(target_os = "emscripten"))),
+    feature = "dont-expose-wasm"
+))]
 use noop_proc_macro::wasm_bindgen;
 
 use num_traits::SaturatingSub;
-#[cfg(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm")))]
+#[cfg(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+))]
 use wasm_bindgen::prelude::{wasm_bindgen, JsValue};
 
 // This file was code-generated using an experimental CDDL to rust tool:
 // https://github.com/Emurgo/cddl-codegen
 
-use cbor_event::{Len, Special as CBORSpecial};
 use cbor_event::Type as CBORType;
 use cbor_event::{
     self,
     de::Deserializer,
     se::{Serialize, Serializer},
 };
+use cbor_event::{Len, Special as CBORSpecial};
 
 #[macro_use]
 mod macros;
@@ -58,25 +65,25 @@ mod fees;
 pub use fees::*;
 pub mod impl_mockchain;
 pub mod legacy_address;
-pub mod traits;
 mod protocol_types;
+pub mod traits;
 pub use protocol_types::*;
 pub mod typed_bytes;
 #[macro_use]
 mod utils;
 pub use utils::*;
-mod serialization;
 mod rational;
+mod serialization;
 
 pub use serialization::*;
 
 use crate::traits::NoneOrEmpty;
+use hashlink::LinkedHashMap;
 use schemars::JsonSchema;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::fmt;
 use std::fmt::Display;
-use hashlink::LinkedHashMap;
 
 type DeltaCoin = Int;
 
@@ -206,15 +213,15 @@ impl_vec_wrapper!(TransactionOutputs, TransactionOutput);
 
 #[wasm_bindgen]
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct DataCost{
-    coins_per_byte: Coin
+pub struct DataCost {
+    coins_per_byte: Coin,
 }
 
 #[wasm_bindgen]
 impl DataCost {
     pub fn new_coins_per_byte(coins_per_byte: &Coin) -> DataCost {
         DataCost {
-            coins_per_byte: coins_per_byte.clone()
+            coins_per_byte: coins_per_byte.clone(),
         }
     }
 
@@ -1021,9 +1028,7 @@ impl_vec_wrapper!(ScriptHashes, ScriptHash);
 
 #[wasm_bindgen]
 #[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
-pub struct ProposedProtocolParameterUpdates(
-    LinkedHashMap<GenesisHash, ProtocolParamUpdate>,
-);
+pub struct ProposedProtocolParameterUpdates(LinkedHashMap<GenesisHash, ProtocolParamUpdate>);
 
 impl serde::Serialize for ProposedProtocolParameterUpdates {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -1392,7 +1397,9 @@ impl Assets {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(
+    Clone, Debug, Default, Eq, Ord, PartialEq, serde::Serialize, serde::Deserialize, JsonSchema,
+)]
 pub struct MultiAsset(pub(crate) std::collections::BTreeMap<PolicyID, Assets>);
 
 impl_to_from!(MultiAsset);
@@ -1489,7 +1496,11 @@ impl MultiAsset {
     }
 
     pub fn with_asset(mut self, policy: PolicyID, name: AssetName, amount: BigNum) -> Self {
-        let assets = self.0.remove(&policy).unwrap_or_default().with_asset(name, amount);
+        let assets = self
+            .0
+            .remove(&policy)
+            .unwrap_or_default()
+            .with_asset(name, amount);
         self.with_assets(policy, assets)
     }
 }
@@ -1534,7 +1545,9 @@ impl PartialOrd for MultiAsset {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(
+    Clone, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
+)]
 pub struct MintsAssets(Vec<MintAssets>);
 
 to_from_json!(MintsAssets);
@@ -1562,7 +1575,16 @@ impl_vec_wrapper!(MintsAssets, MintAssets);
 
 #[wasm_bindgen]
 #[derive(
-    Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
+    Clone,
+    Debug,
+    Default,
+    Eq,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize,
+    JsonSchema,
 )]
 pub struct MintAssets(std::collections::BTreeMap<AssetName, Int>);
 
@@ -1574,7 +1596,9 @@ impl MintAssets {
 
     pub fn new_from_entry(key: &AssetName, value: &Int) -> Result<MintAssets, JsError> {
         if value.0 == 0 {
-            return Err(JsError::from_str("MintAssets cannot be created with 0 value"));
+            return Err(JsError::from_str(
+                "MintAssets cannot be created with 0 value",
+            ));
         }
         let mut ma = MintAssets::new();
         ma.insert(key, value)?;
@@ -1587,7 +1611,9 @@ impl MintAssets {
 
     pub fn insert(&mut self, key: &AssetName, value: &Int) -> Result<Option<Int>, JsError> {
         if value.0 == 0 {
-            return Err(JsError::from_str("MintAssets cannot be created with 0 value"));
+            return Err(JsError::from_str(
+                "MintAssets cannot be created with 0 value",
+            ));
         }
         Ok(self.0.insert(key.clone(), value.clone()))
     }
@@ -1612,7 +1638,16 @@ impl MintAssets {
 
 #[wasm_bindgen]
 #[derive(
-    Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
+    Clone,
+    Debug,
+    Default,
+    Eq,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize,
+    JsonSchema,
 )]
 pub struct Mint(Vec<(PolicyID, MintAssets)>);
 

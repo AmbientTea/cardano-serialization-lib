@@ -1,9 +1,9 @@
-use std::io::{BufRead, Seek, Write};
+use crate::protocol_types::Deserialize;
+use crate::serialization::utils::skip_set_tag;
+use crate::{CborSetType, DeserializeError, Vkeywitness, Vkeywitnesses};
 use cbor_event::de::Deserializer;
 use cbor_event::se::Serializer;
-use crate::protocol_types::Deserialize;
-use crate::{CborSetType, DeserializeError, Vkeywitness, Vkeywitnesses};
-use crate::serialization::utils::skip_set_tag;
+use std::io::{BufRead, Seek, Write};
 
 impl cbor_event::se::Serialize for Vkeywitnesses {
     fn serialize<'se, W: Write>(
@@ -46,7 +46,7 @@ impl Deserialize for Vkeywitnesses {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("Vkeywitnesses"))?;
+        .map_err(|e| e.annotate("Vkeywitnesses"))?;
 
         if has_set_tag {
             wits.set_set_type(CborSetType::Tagged);

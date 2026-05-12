@@ -1,8 +1,10 @@
-use crate::{JsError, PublicKey, wasm_bindgen};
 use crate::chain_crypto::bech32::Bech32;
+use crate::{wasm_bindgen, JsError, PublicKey};
 
 #[wasm_bindgen]
-pub struct Bip32PublicKey(pub(crate) crate::chain_crypto::PublicKey<crate::chain_crypto::Ed25519Bip32>);
+pub struct Bip32PublicKey(
+    pub(crate) crate::chain_crypto::PublicKey<crate::chain_crypto::Ed25519Bip32>,
+);
 
 #[wasm_bindgen]
 impl Bip32PublicKey {

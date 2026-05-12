@@ -1,7 +1,7 @@
+use crate::*;
 use num_bigint::Sign;
 use num_integer::Integer;
 use num_traits::Signed;
-use crate::*;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -36,8 +36,8 @@ impl std::str::FromStr for BigInt {
 
 impl serde::Serialize for BigInt {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&self.to_str())
     }
@@ -45,8 +45,8 @@ impl serde::Serialize for BigInt {
 
 impl<'de> serde::de::Deserialize<'de> for BigInt {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let s = <String as serde::de::Deserialize>::deserialize(deserializer)?;
         BigInt::from_str(&s).map_err(|_e| {
@@ -155,8 +155,8 @@ impl BigInt {
 }
 
 impl<T> std::convert::From<T> for BigInt
-    where
-        T: std::convert::Into<num_bigint::BigInt>,
+where
+    T: std::convert::Into<num_bigint::BigInt>,
 {
     fn from(x: T) -> Self {
         Self(x.into())

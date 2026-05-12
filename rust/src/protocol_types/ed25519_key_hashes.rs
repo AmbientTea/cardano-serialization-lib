@@ -1,20 +1,16 @@
+pub use crate::*;
+use itertools::Itertools;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
+use std::iter::Map;
 use std::ops::Deref;
 use std::slice;
-use std::iter::Map;
 use std::sync::Arc;
-use itertools::Itertools;
-pub use crate::*;
 
 pub type RequiredSigners = Ed25519KeyHashes;
 
 #[wasm_bindgen]
-#[derive(
-    Clone,
-    Debug,
-    Default
-)]
+#[derive(Clone, Debug, Default)]
 pub struct Ed25519KeyHashes {
     keyhashes: Vec<Arc<Ed25519KeyHash>>,
     dedup: HashSet<Arc<Ed25519KeyHash>>,
@@ -165,8 +161,8 @@ impl NoneOrEmpty for Ed25519KeyHashes {
 
 impl serde::Serialize for Ed25519KeyHashes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         self.keyhashes
             .iter()
@@ -178,12 +174,10 @@ impl serde::Serialize for Ed25519KeyHashes {
 
 impl<'de> serde::de::Deserialize<'de> for Ed25519KeyHashes {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
-        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(
-            deserializer,
-        )?;
+        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(deserializer)?;
         Ok(Self::from_vec(vec))
     }
 }

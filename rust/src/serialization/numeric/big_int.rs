@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::read_nint;
+use crate::*;
 
 impl Serialize for BigInt {
     fn serialize<'se, W: Write>(
@@ -85,7 +85,7 @@ impl Deserialize for BigInt {
                                 found: tag,
                                 expected: 2,
                             }
-                                .into());
+                            .into());
                         }
                     }
                 }
@@ -98,6 +98,6 @@ impl Deserialize for BigInt {
                 _ => return Err(DeserializeFailure::NoVariantMatched.into()),
             }
         })()
-            .map_err(|e| e.annotate("BigInt"))
+        .map_err(|e| e.annotate("BigInt"))
     }
 }

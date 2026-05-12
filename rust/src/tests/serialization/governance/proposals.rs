@@ -1,4 +1,7 @@
-use crate::tests::fakes::{fake_full_protocol_param_update, fake_anchor, fake_anchor_data_hash, fake_key_hash, fake_reward_address, fake_script_hash, fake_tx_hash};
+use crate::tests::fakes::{
+    fake_anchor, fake_anchor_data_hash, fake_full_protocol_param_update, fake_key_hash,
+    fake_reward_address, fake_script_hash, fake_tx_hash,
+};
 use crate::*;
 
 macro_rules! to_from_test {
@@ -394,8 +397,7 @@ fn voting_proposals_ser_round_trip() {
 }
 
 #[test]
-fn voting_proposal_round_trip_test()
-{
+fn voting_proposal_round_trip_test() {
     let mut withdrawals = TreasuryWithdrawals::new();
     let addr1 = RewardAddress::new(1, &Credential::from_keyhash(&fake_key_hash(1)));
     let addr2 = RewardAddress::new(2, &Credential::from_keyhash(&fake_key_hash(2)));
@@ -503,5 +505,4 @@ fn voting_proposals_set_always_should_be_with_tag() {
     assert_eq!(proposals_deser_2.get_set_type(), CborSetType::Tagged);
 
     assert_eq!(proposals, proposals_deser_2);
-
 }

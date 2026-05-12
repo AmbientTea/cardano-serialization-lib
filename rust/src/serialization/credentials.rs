@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::{is_break_tag, skip_set_tag};
+use crate::*;
 
 impl cbor_event::se::Serialize for Credentials {
     fn serialize<'se, W: Write>(
@@ -34,7 +34,7 @@ impl Deserialize for Credentials {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("CredentialsSet"))?;
+        .map_err(|e| e.annotate("CredentialsSet"))?;
         if has_set_tag {
             creds.set_set_type(CborSetType::Tagged);
         } else {

@@ -1,9 +1,9 @@
-use std::io::{BufRead, Seek, Write};
-use cbor_event::de::Deserializer;
-use cbor_event::se::Serializer;
-use crate::{BootstrapWitness, BootstrapWitnesses, CborSetType, DeserializeError};
 use crate::protocol_types::Deserialize;
 use crate::serialization::utils::skip_set_tag;
+use crate::{BootstrapWitness, BootstrapWitnesses, CborSetType, DeserializeError};
+use cbor_event::de::Deserializer;
+use cbor_event::se::Serializer;
+use std::io::{BufRead, Seek, Write};
 
 impl cbor_event::se::Serialize for BootstrapWitnesses {
     fn serialize<'se, W: Write>(
@@ -43,7 +43,7 @@ impl Deserialize for BootstrapWitnesses {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("BootstrapWitnesses"))?;
+        .map_err(|e| e.annotate("BootstrapWitnesses"))?;
 
         let mut witnesses = Self::from_vec(arr);
         if has_set_tag {

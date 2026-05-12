@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::{is_break_tag, skip_set_tag};
+use crate::*;
 
 impl Serialize for Ed25519KeyHashes {
     fn serialize<'se, W: Write>(
@@ -34,7 +34,7 @@ impl Deserialize for Ed25519KeyHashes {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("Ed25519KeyHashes"))?;
+        .map_err(|e| e.annotate("Ed25519KeyHashes"))?;
         if has_set_tag {
             creds.set_set_type(CborSetType::Tagged);
         } else {

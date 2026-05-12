@@ -1,5 +1,5 @@
-use crate::*;
 use crate::traits::EmptyToNone;
+use crate::*;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct TransactionWitnessSetRaw {
@@ -29,7 +29,9 @@ impl TransactionWitnessSetRaw {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Default, Eq, PartialEq, Debug, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(
+    Clone, Default, Eq, PartialEq, Debug, serde::Serialize, serde::Deserialize, JsonSchema,
+)]
 pub struct TransactionWitnessSet {
     pub(crate) vkeys: Option<Vkeywitnesses>,
     pub(crate) native_scripts: Option<NativeScripts>,

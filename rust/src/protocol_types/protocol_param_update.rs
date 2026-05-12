@@ -490,7 +490,10 @@ impl ProtocolParamUpdate {
         self.committee_term_limit.clone()
     }
 
-    pub fn set_governance_action_validity_period(&mut self, governance_action_validity_period: Epoch) {
+    pub fn set_governance_action_validity_period(
+        &mut self,
+        governance_action_validity_period: Epoch,
+    ) {
         self.governance_action_validity_period = Some(governance_action_validity_period)
     }
 

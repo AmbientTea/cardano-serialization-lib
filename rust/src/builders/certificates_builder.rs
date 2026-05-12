@@ -1,5 +1,5 @@
-use hashlink::LinkedHashMap;
 use crate::*;
+use hashlink::LinkedHashMap;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -10,7 +10,9 @@ pub struct CertificatesBuilder {
 #[wasm_bindgen]
 impl CertificatesBuilder {
     pub fn new() -> Self {
-        Self { certs: LinkedHashMap::new() }
+        Self {
+            certs: LinkedHashMap::new(),
+        }
     }
 
     pub fn add(&mut self, cert: &Certificate) -> Result<(), JsError> {
@@ -225,11 +227,10 @@ impl CertificatesBuilder {
     pub(crate) fn get_script_ref_inputs_with_size(
         &self,
     ) -> impl Iterator<Item = (&TransactionInput, usize)> {
-        self.certs.iter()
+        self.certs
+            .iter()
             .filter_map(|(_, opt_wit)| opt_wit.as_ref())
-            .filter_map(|script_wit| {
-                script_wit.get_script_ref_input_with_size()
-            })
+            .filter_map(|script_wit| script_wit.get_script_ref_input_with_size())
     }
 }
 

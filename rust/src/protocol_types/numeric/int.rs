@@ -67,8 +67,8 @@ impl Int {
     /// Returns an i32 value in case the underlying original i128 value is within the limits.
     /// Otherwise will just return an empty value (undefined).
     #[deprecated(
-    since = "10.0.0",
-    note = "Unsafe ignoring of possible boundary error and it's not clear from the function name. Use `as_i32_or_nothing`, `as_i32_or_fail`, or `to_str`"
+        since = "10.0.0",
+        note = "Unsafe ignoring of possible boundary error and it's not clear from the function name. Use `as_i32_or_nothing`, `as_i32_or_fail`, or `to_str`"
     )]
     pub fn as_i32(&self) -> Option<i32> {
         self.as_i32_or_nothing()
@@ -133,8 +133,8 @@ impl std::str::FromStr for Int {
 
 impl serde::Serialize for Int {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&self.to_str())
     }
@@ -142,8 +142,8 @@ impl serde::Serialize for Int {
 
 impl<'de> serde::de::Deserialize<'de> for Int {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let s = <String as serde::de::Deserialize>::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_e| {

@@ -1,8 +1,8 @@
-use std::io::{BufRead, Seek, Write};
-use cbor_event::de::Deserializer;
-use cbor_event::se::Serializer;
 use crate::protocol_types::Deserialize;
 use crate::{DeserializeError, DeserializeFailure, Ed25519Signature, Vkey, Vkeywitness};
+use cbor_event::de::Deserializer;
+use cbor_event::se::Serializer;
+use std::io::{BufRead, Seek, Write};
 
 impl cbor_event::se::Serialize for Vkeywitness {
     fn serialize<'se, W: Write>(
@@ -32,20 +32,20 @@ impl Deserialize for Vkeywitness {
                         return Err(DeserializeFailure::CBOR(cbor_event::Error::WrongLen(
                             2, len, "",
                         ))
-                            .into())
+                        .into())
                     }
                 },
                 cbor_event::Len::Indefinite => match raw.special()? {
                     cbor_event::Special::Break =>
                     /* it's ok */
-                        {
-                            ()
-                        }
+                    {
+                        ()
+                    }
                     _ => return Err(DeserializeFailure::EndingBreakMissing.into()),
                 },
             }
             ret
         })()
-            .map_err(|e| e.annotate("Vkeywitness"))
+        .map_err(|e| e.annotate("Vkeywitness"))
     }
 }

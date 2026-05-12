@@ -1,5 +1,5 @@
-mod impl_signature_macro;
 mod impl_hash_type_macro;
+mod impl_signature_macro;
 
 mod bip32_private_key;
 pub use bip32_private_key::*;

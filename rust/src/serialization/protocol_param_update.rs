@@ -239,7 +239,7 @@ impl cbor_event::se::Serialize for ProtocolParamUpdate {
             } + match &self.ref_script_coins_per_byte {
                 Some(_) => 1,
                 None => 0,
-            }
+            },
         ))?;
         if let Some(field) = &self.minfee_a {
             serializer.write_unsigned_integer(0)?;
@@ -816,7 +816,7 @@ impl Deserialize for ProtocolParamUpdate {
                                     read_len.read_elems(1)?;
                                     Ok(UnitInterval::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("ref_script_coins_per_byte"))?,
+                                .map_err(|e| e.annotate("ref_script_coins_per_byte"))?,
                             );
                         }
                         unknown_key => {

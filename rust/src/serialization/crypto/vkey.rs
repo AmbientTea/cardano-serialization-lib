@@ -1,8 +1,8 @@
-use std::io::{BufRead, Seek, Write};
+use crate::protocol_types::Deserialize;
+use crate::{DeserializeError, PublicKey, Vkey};
 use cbor_event::de::Deserializer;
 use cbor_event::se::Serializer;
-use crate::{DeserializeError, PublicKey, Vkey};
-use crate::protocol_types::Deserialize;
+use std::io::{BufRead, Seek, Write};
 
 impl cbor_event::se::Serialize for Vkey {
     fn serialize<'se, W: Write>(
@@ -15,8 +15,8 @@ impl cbor_event::se::Serialize for Vkey {
 
 impl Deserialize for Vkey {
     fn deserialize<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<Self, DeserializeError> {
-        Ok(Self(PublicKey(crate::chain_crypto::PublicKey::from_binary(
-            raw.bytes()?.as_ref(),
-        )?)))
+        Ok(Self(PublicKey(
+            crate::chain_crypto::PublicKey::from_binary(raw.bytes()?.as_ref())?,
+        )))
     }
 }

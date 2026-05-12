@@ -48,30 +48,49 @@ impl TxInputsBuilder {
         let address = &output.address;
         let address_kind = address.kind();
         if address_kind == AddressKind::Malformed || address_kind == AddressKind::Reward {
-            return Err(JsError::from_str(&BuilderError::RegularAddressTypeMismatch.as_str()));
+            return Err(JsError::from_str(
+                &BuilderError::RegularAddressTypeMismatch.as_str(),
+            ));
         }
 
-        let ref_script_size = output.script_ref.as_ref().map(|x| x.to_unwrapped_bytes().len());
+        let ref_script_size = output
+            .script_ref
+            .as_ref()
+            .map(|x| x.to_unwrapped_bytes().len());
         self.add_regular_input_extended(&output.address, input, &output.amount, ref_script_size)
     }
 
-    pub fn add_plutus_script_utxo(&mut self, utxo: &TransactionUnspentOutput, witness: &PlutusWitness) -> Result<(), JsError> {
+    pub fn add_plutus_script_utxo(
+        &mut self,
+        utxo: &TransactionUnspentOutput,
+        witness: &PlutusWitness,
+    ) -> Result<(), JsError> {
         let input = &utxo.input;
         let output = &utxo.output;
         let address = &output.address;
         let address_kind = address.kind();
-        if address_kind == AddressKind::Malformed || address_kind == AddressKind::Reward || address_kind == AddressKind::Byron{
-            return Err(JsError::from_str(&BuilderError::ScriptAddressTypeMismatch.as_str()));
+        if address_kind == AddressKind::Malformed
+            || address_kind == AddressKind::Reward
+            || address_kind == AddressKind::Byron
+        {
+            return Err(JsError::from_str(
+                &BuilderError::ScriptAddressTypeMismatch.as_str(),
+            ));
         }
 
         let payment_cred = address.payment_cred();
         if let Some(payment_cred) = payment_cred {
             if !payment_cred.has_script_hash() {
-                return Err(JsError::from_str(&BuilderError::ScriptAddressCredentialMismatch.as_str()));
+                return Err(JsError::from_str(
+                    &BuilderError::ScriptAddressCredentialMismatch.as_str(),
+                ));
             }
         }
 
-        let ref_script_size = output.script_ref.as_ref().map(|x| x.to_unwrapped_bytes().len());
+        let ref_script_size = output
+            .script_ref
+            .as_ref()
+            .map(|x| x.to_unwrapped_bytes().len());
         let hash = witness.script.script_hash();
 
         self.add_script_input(&hash, input, &output.amount, ref_script_size);
@@ -80,23 +99,37 @@ impl TxInputsBuilder {
         Ok(())
     }
 
-    pub fn add_native_script_utxo(&mut self, utxo: &TransactionUnspentOutput, witness: &NativeScriptSource) -> Result<(), JsError> {
+    pub fn add_native_script_utxo(
+        &mut self,
+        utxo: &TransactionUnspentOutput,
+        witness: &NativeScriptSource,
+    ) -> Result<(), JsError> {
         let input = &utxo.input;
         let output = &utxo.output;
         let address = &output.address;
         let address_kind = address.kind();
-        if address_kind == AddressKind::Malformed || address_kind == AddressKind::Reward || address_kind == AddressKind::Byron{
-            return Err(JsError::from_str(&BuilderError::ScriptAddressTypeMismatch.as_str()));
+        if address_kind == AddressKind::Malformed
+            || address_kind == AddressKind::Reward
+            || address_kind == AddressKind::Byron
+        {
+            return Err(JsError::from_str(
+                &BuilderError::ScriptAddressTypeMismatch.as_str(),
+            ));
         }
 
         let payment_cred = address.payment_cred();
         if let Some(payment_cred) = payment_cred {
             if !payment_cred.has_script_hash() {
-                return Err(JsError::from_str(&BuilderError::ScriptAddressCredentialMismatch.as_str()));
+                return Err(JsError::from_str(
+                    &BuilderError::ScriptAddressCredentialMismatch.as_str(),
+                ));
             }
         }
 
-        let ref_script_size = output.script_ref.as_ref().map(|x| x.to_unwrapped_bytes().len());
+        let ref_script_size = output
+            .script_ref
+            .as_ref()
+            .map(|x| x.to_unwrapped_bytes().len());
         let hash = witness.script_hash();
 
         self.add_script_input(&hash, input, &output.amount, ref_script_size);
@@ -133,7 +166,13 @@ impl TxInputsBuilder {
         self.required_witnesses.vkeys.add_move(hash.clone());
     }
 
-    fn add_script_input(&mut self, hash: &ScriptHash, input: &TransactionInput, amount: &Value, input_ref_script_size: Option<usize>) {
+    fn add_script_input(
+        &mut self,
+        hash: &ScriptHash,
+        input: &TransactionInput,
+        amount: &Value,
+        input_ref_script_size: Option<usize>,
+    ) {
         let inp = TxBuilderInput {
             input: input.clone(),
             amount: amount.clone(),
@@ -191,9 +230,10 @@ impl TxInputsBuilder {
             input_ref_script_size,
         };
         self.push_input((inp, None));
-        self.required_witnesses.bootstraps.insert(address.to_bytes());
+        self.required_witnesses
+            .bootstraps
+            .insert(address.to_bytes());
     }
-
 
     /// Adds non script input, in case of script or reward address input it will return an error
     pub fn add_regular_input(
@@ -264,7 +304,10 @@ impl TxInputsBuilder {
         {
             match wintess {
                 ScriptWitnessType::NativeScriptWitness(NativeScriptSourceEnum::RefInput(
-                    input, _, _, _,
+                    input,
+                    _,
+                    _,
+                    _,
                 )) => {
                     inputs.push(input.clone());
                 }
@@ -282,7 +325,6 @@ impl TxInputsBuilder {
         }
         TransactionInputs::from_vec(inputs)
     }
-
 
     /// Returns a copy of the current script input witness scripts in the builder
     pub fn get_native_input_scripts(&self) -> Option<NativeScripts> {
@@ -425,13 +467,15 @@ impl TxInputsBuilder {
     pub(crate) fn get_inputs_with_ref_script_size(
         &self,
     ) -> impl Iterator<Item = (&TransactionInput, usize)> {
-        self.inputs.iter().filter_map(|(tx_in, (tx_builder_input, _))| {
-            if let Some(size) = tx_builder_input.input_ref_script_size {
-                Some((tx_in, size))
-            } else {
-                None
-            }
-        })
+        self.inputs
+            .iter()
+            .filter_map(|(tx_in, (tx_builder_input, _))| {
+                if let Some(size) = tx_builder_input.input_ref_script_size {
+                    Some((tx_in, size))
+                } else {
+                    None
+                }
+            })
     }
 
     #[allow(dead_code)]
@@ -487,20 +531,18 @@ impl From<&TxInputsBuilder> for Ed25519KeyHashes {
             .scripts
             .values()
             .flat_map(|tx_wits| tx_wits.values())
-            .for_each(|swt: &Option<ScriptWitnessType>| {
-                match swt {
-                    Some(ScriptWitnessType::NativeScriptWitness(script_source)) => {
-                        if let Some(signers) = script_source.required_signers() {
-                            set.extend_move(signers);
-                        }
+            .for_each(|swt: &Option<ScriptWitnessType>| match swt {
+                Some(ScriptWitnessType::NativeScriptWitness(script_source)) => {
+                    if let Some(signers) = script_source.required_signers() {
+                        set.extend_move(signers);
                     }
-                    Some(ScriptWitnessType::PlutusScriptWitness(script_source)) => {
-                        if let Some(signers) = script_source.get_required_signers() {
-                            set.extend_move(signers);
-                        }
-                    }
-                    None => (),
                 }
+                Some(ScriptWitnessType::PlutusScriptWitness(script_source)) => {
+                    if let Some(signers) = script_source.get_required_signers() {
+                        set.extend_move(signers);
+                    }
+                }
+                None => (),
             });
         set
     }

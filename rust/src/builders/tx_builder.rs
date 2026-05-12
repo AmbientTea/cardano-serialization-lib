@@ -58,7 +58,10 @@ pub(crate) fn fake_full_tx(
             for addr in bootstraps {
                 number += 1;
                 // picking icarus over daedalus for fake witness generation shouldn't matter
-                result.add(&fake_bootstrap_witness(number, &ByronAddress::from_bytes(addr)?));
+                result.add(&fake_bootstrap_witness(
+                    number,
+                    &ByronAddress::from_bytes(addr)?,
+                ));
             }
             Some(result)
         }
@@ -279,9 +282,13 @@ impl TransactionBuilderConfigBuilder {
     }
 
     ///Removes a ref input (that was set via set_reference_inputs) if the ref inputs was presented in regular tx inputs
-    pub fn deduplicate_explicit_ref_inputs_with_regular_inputs(&self, deduplicate_explicit_ref_inputs_with_regular_inputs: bool) -> Self {
+    pub fn deduplicate_explicit_ref_inputs_with_regular_inputs(
+        &self,
+        deduplicate_explicit_ref_inputs_with_regular_inputs: bool,
+    ) -> Self {
         let mut cfg = self.clone();
-        cfg.deduplicate_explicit_ref_inputs_with_regular_inputs = deduplicate_explicit_ref_inputs_with_regular_inputs;
+        cfg.deduplicate_explicit_ref_inputs_with_regular_inputs =
+            deduplicate_explicit_ref_inputs_with_regular_inputs;
         cfg
     }
 
@@ -317,7 +324,8 @@ impl TransactionBuilderConfigBuilder {
             ex_unit_prices: cfg.ex_unit_prices,
             ref_script_coins_per_byte: cfg.ref_script_coins_per_byte,
             prefer_pure_change: cfg.prefer_pure_change,
-            deduplicate_explicit_ref_inputs_with_regular_inputs: cfg.deduplicate_explicit_ref_inputs_with_regular_inputs,
+            deduplicate_explicit_ref_inputs_with_regular_inputs: cfg
+                .deduplicate_explicit_ref_inputs_with_regular_inputs,
             do_not_burn_extra_change: cfg.do_not_burn_extra_change,
         })
     }
@@ -378,9 +386,7 @@ impl TxBuilderFee {
                     new_fee
                 }
             }
-            TxBuilderFee::Exactly(old_fee) => {
-                old_fee.clone()
-            }
+            TxBuilderFee::Exactly(old_fee) => old_fee.clone(),
         }
     }
 }
@@ -435,7 +441,9 @@ impl TransactionBuilder {
 
         if (input_total.coin >= output_total.coin) && have_no_inputs_in_tx {
             if available_inputs.is_empty() {
-                return Err(JsError::from_str("No inputs to add. Transaction should have at least one input"));
+                return Err(JsError::from_str(
+                    "No inputs to add. Transaction should have at least one input",
+                ));
             }
 
             //just add first input, to cover needs of one input
@@ -713,12 +721,13 @@ impl TransactionBuilder {
                         let input = &available_inputs[*i];
                         let new_input = &available_inputs[*j];
                         let cur: u64 = (&by(&input.output.amount).unwrap_or(BigNum::zero())).into();
-                        let new: u64 = (&by(&new_input.output.amount).unwrap_or(BigNum::zero())).into();
+                        let new: u64 =
+                            (&by(&new_input.output.amount).unwrap_or(BigNum::zero())).into();
                         let min: u64 = (&by(&output.amount).unwrap_or(BigNum::zero())).into();
                         let ideal = 2 * min;
                         let max = 3 * min;
-                        let move_closer =
-                            (ideal as i128 - new as i128).abs() < (ideal as i128 - cur as i128).abs();
+                        let move_closer = (ideal as i128 - new as i128).abs()
+                            < (ideal as i128 - cur as i128).abs();
                         let not_exceed_max = new < max;
                         if move_closer && not_exceed_max {
                             std::mem::swap(i, j);
@@ -885,10 +894,8 @@ impl TransactionBuilder {
         input: &TransactionInput,
         amount: &Value,
     ) {
-        self.inputs.add_native_script_input(
-            &NativeScriptSource::new(script),
-            input,
-            amount);
+        self.inputs
+            .add_native_script_input(&NativeScriptSource::new(script), input, amount);
     }
 
     /// This method will add the input to the builder and also register the required plutus witness
@@ -940,17 +947,16 @@ impl TransactionBuilder {
         if self.fee.is_some() {
             return Err(JsError::from_str(
                 "Cannot calculate change if it was calculated before",
-            ))
+            ));
         }
-        let mut add_change_result = self
-            .add_change_if_needed_with_optional_script_and_datum(
-                &change_config.address,
-                change_config
-                    .plutus_data
-                    .clone()
-                    .map_or(None, |od| Some(od.0)),
-                change_config.script_ref.clone(),
-            );
+        let mut add_change_result = self.add_change_if_needed_with_optional_script_and_datum(
+            &change_config.address,
+            change_config
+                .plutus_data
+                .clone()
+                .map_or(None, |od| Some(od.0)),
+            change_config.script_ref.clone(),
+        );
         match add_change_result {
             Ok(v) => Ok(v),
             Err(e) => {
@@ -1146,9 +1152,12 @@ impl TransactionBuilder {
         self.fee = match &self.fee_request {
             TxBuilderFee::Exactly(exact_fee) => Some(exact_fee.clone()),
             TxBuilderFee::NotLess(not_less) => {
-                if &fee >= not_less
-                { Some(fee) } else { Some(not_less.clone()) }
-            },
+                if &fee >= not_less {
+                    Some(fee)
+                } else {
+                    Some(not_less.clone())
+                }
+            }
             TxBuilderFee::Unspecified => Some(fee),
         }
     }
@@ -1392,7 +1401,11 @@ impl TransactionBuilder {
     /// Add a mint entry to this builder using a PolicyID and MintAssets object
     /// It will be securely added to existing or new Mint in this builder
     /// It will replace any existing mint assets with the same PolicyID
-    pub fn set_mint_asset(&mut self, policy_script: &NativeScript, mint_assets: &MintAssets) -> Result<(), JsError> {
+    pub fn set_mint_asset(
+        &mut self,
+        policy_script: &NativeScript,
+        mint_assets: &MintAssets,
+    ) -> Result<(), JsError> {
         let native_script_source = NativeScriptSource::new(policy_script);
         let mint_witness = MintWitness::new_native_script(&native_script_source);
         if let Some(mint) = &mut self.mint {
@@ -1593,10 +1606,13 @@ impl TransactionBuilder {
             add_ref_inputs_set(voting_proposals.get_ref_inputs());
         }
 
-        if self.config.deduplicate_explicit_ref_inputs_with_regular_inputs {
+        if self
+            .config
+            .deduplicate_explicit_ref_inputs_with_regular_inputs
+        {
             add_ref_inputs_set(TransactionInputs::from_vec(
-                self.reference_inputs.keys().cloned().collect())
-            )
+                self.reference_inputs.keys().cloned().collect(),
+            ))
         } else {
             for input in self.reference_inputs.keys().cloned() {
                 inputs.insert(input);
@@ -1649,7 +1665,8 @@ impl TransactionBuilder {
         if total_input != total_output {
             Err(JsError::from_str(&format!(
                 "Total input and total output are not equal. Total input: {}, Total output: {}",
-                total_input.to_json()?, total_output.to_json()?
+                total_input.to_json()?,
+                total_output.to_json()?
             )))
         } else {
             Ok(())
@@ -1809,13 +1826,13 @@ impl TransactionBuilder {
 
     pub fn get_fee_if_set(&self) -> Option<Coin> {
         if let Some(fee) = &self.fee {
-           return Some(fee.clone())
+            return Some(fee.clone());
         };
 
         match self.fee_request {
             TxBuilderFee::Exactly(fee) => Some(fee),
             TxBuilderFee::NotLess(fee) => Some(fee),
-            TxBuilderFee::Unspecified => None
+            TxBuilderFee::Unspecified => None,
         }
     }
 
@@ -2151,7 +2168,9 @@ impl TransactionBuilder {
                         burn_amount: &BigNum,
                     ) -> Result<bool, JsError> {
                         if builder.config.do_not_burn_extra_change {
-                            return Err(JsError::from_str("Not enough ADA leftover to include a new change output"));
+                            return Err(JsError::from_str(
+                                "Not enough ADA leftover to include a new change output",
+                            ));
                         }
                         let fee_request = &builder.fee_request;
                         // recall: min_fee assumed the fee was the maximum possible so we definitely have enough input to cover whatever fee it ends up being
@@ -2332,9 +2351,7 @@ impl TransactionBuilder {
                 .as_ref()
                 .map(|x| utils::hash_auxiliary_data(x)),
             validity_start_interval: self.validity_start_interval,
-            mint: self.mint.as_ref()
-                .map(|x| x.build())
-                .transpose()?,
+            mint: self.mint.as_ref().map(|x| x.build()).transpose()?,
             script_data_hash: self.script_data_hash.clone(),
             collateral: self.collateral.inputs_option(),
             required_signers: self.required_signers.to_option(),

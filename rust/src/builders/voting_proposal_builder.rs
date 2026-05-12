@@ -17,7 +17,9 @@ impl VotingProposalBuilder {
 
     pub fn add(&mut self, proposal: &VotingProposal) -> Result<(), JsError> {
         if proposal.has_script_hash() {
-            return Err(JsError::from_str("Proposal has a script hash. Use add_with_plutus_witness instead."));
+            return Err(JsError::from_str(
+                "Proposal has a script hash. Use add_with_plutus_witness instead.",
+            ));
         }
         self.proposals.insert(proposal.clone(), None);
         Ok(())
@@ -70,8 +72,9 @@ impl VotingProposalBuilder {
             Ok(Coin::zero()),
             |acc: Result<Coin, JsError>, (proposal, _)| {
                 acc.and_then(|acc| {
-                    acc.checked_add(&proposal.deposit)
-                        .or_else(|_| Err(JsError::from_str("Overflow when calculating total deposit")))
+                    acc.checked_add(&proposal.deposit).or_else(|_| {
+                        Err(JsError::from_str("Overflow when calculating total deposit"))
+                    })
                 })
             },
         )
@@ -93,7 +96,8 @@ impl VotingProposalBuilder {
     pub(crate) fn get_script_ref_inputs_with_size(
         &self,
     ) -> impl Iterator<Item = (&TransactionInput, usize)> {
-        self.proposals.iter()
+        self.proposals
+            .iter()
             .filter_map(|(_, script_wit)| script_wit.as_ref())
             .filter_map(|script_wit| script_wit.get_script_ref_input_with_size())
     }

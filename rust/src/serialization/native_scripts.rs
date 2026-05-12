@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::{is_break_tag, skip_set_tag};
+use crate::*;
 
 impl cbor_event::se::Serialize for NativeScripts {
     fn serialize<'se, W: Write>(
@@ -54,7 +54,7 @@ impl Deserialize for NativeScripts {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("NativeScripts"))?;
+        .map_err(|e| e.annotate("NativeScripts"))?;
 
         let set_type = if has_tag {
             CborSetType::Tagged
@@ -62,11 +62,9 @@ impl Deserialize for NativeScripts {
             CborSetType::Untagged
         };
 
-        Ok(
-            Self {
-                scripts: arr,
-                cbor_tag_type: Some(set_type),
-            }
-        )
+        Ok(Self {
+            scripts: arr,
+            cbor_tag_type: Some(set_type),
+        })
     }
 }

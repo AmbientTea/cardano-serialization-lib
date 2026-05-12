@@ -17,16 +17,19 @@ use cryptoxide::digest::Digest;
 use cryptoxide::sha3;
 use ed25519_bip32::XPub;
 
+use crate::wasm_bindgen;
 use std::{
     convert::{TryFrom, TryInto},
     fmt,
     io::{BufRead, Write},
 };
-use crate::wasm_bindgen;
 
 #[wasm_bindgen]
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Hash)]
-#[cfg_attr(feature = "generic-serialization", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "generic-serialization",
+    derive(serde::Serialize, serde::Deserialize)
+)]
 pub enum ByronAddressType {
     ATPubKey,
     ATScript,
@@ -71,7 +74,9 @@ impl cbor_event::de::Deserialize for ByronAddressType {
     fn deserialize<R: BufRead>(reader: &mut Deserializer<R>) -> cbor_event::Result<Self> {
         match ByronAddressType::from_u64(reader.unsigned_integer()?) {
             Some(addr_type) => Ok(addr_type),
-            None => Err(cbor_event::Error::CustomError(format!("Invalid ByronAddressType"))),
+            None => Err(cbor_event::Error::CustomError(format!(
+                "Invalid ByronAddressType"
+            ))),
         }
     }
 }

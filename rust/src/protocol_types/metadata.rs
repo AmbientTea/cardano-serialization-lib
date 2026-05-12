@@ -358,7 +358,9 @@ impl JsonSchema for GeneralTransactionMetadata {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Debug, Default, Ord, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(
+    Clone, Debug, Default, Ord, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
+)]
 pub struct AuxiliaryData {
     pub(crate) metadata: Option<GeneralTransactionMetadata>,
     pub(crate) native_scripts: Option<NativeScripts>,

@@ -1,6 +1,6 @@
 use crate::*;
-use std::vec::Vec;
 use hashlink::LinkedHashMap;
+use std::vec::Vec;
 
 #[wasm_bindgen]
 #[derive(
@@ -108,11 +108,7 @@ impl MIRToStakeCredentials {
     }
 
     pub fn keys(&self) -> Credentials {
-        Credentials::from_iter(
-            self.rewards
-                .iter()
-                .map(|(k, _v)| k.clone())
-        )
+        Credentials::from_iter(self.rewards.iter().map(|(k, _v)| k.clone()))
     }
 }
 

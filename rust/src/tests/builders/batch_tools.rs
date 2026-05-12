@@ -1,5 +1,5 @@
 use crate::fees::{min_fee, LinearFee};
-use crate::tests::fakes::{fake_policy_id, fake_base_address};
+use crate::tests::fakes::{fake_base_address, fake_policy_id};
 use crate::*;
 
 fn generate_assets(

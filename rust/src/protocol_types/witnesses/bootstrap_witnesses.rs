@@ -1,12 +1,12 @@
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
-use std::slice;
-use std::iter::Map;
-use std::collections::HashSet;
-use std::sync::Arc;
+use crate::*;
 use itertools::Itertools;
 use schemars::JsonSchema;
-use crate::*;
+use std::collections::HashSet;
+use std::hash::{Hash, Hasher};
+use std::iter::Map;
+use std::ops::Deref;
+use std::slice;
+use std::sync::Arc;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug, Default)]
@@ -94,7 +94,7 @@ impl BootstrapWitnesses {
     }
 
     #[allow(dead_code)]
-    pub (crate) fn contains(&self, elem: &BootstrapWitness) -> bool {
+    pub(crate) fn contains(&self, elem: &BootstrapWitness) -> bool {
         self.dedup.contains(elem)
     }
 
@@ -151,7 +151,8 @@ impl<'de> serde::de::Deserialize<'de> for BootstrapWitnesses {
     where
         D: serde::Deserializer<'de>,
     {
-        let witnesses_vec = <Vec<BootstrapWitness> as serde::de::Deserialize>::deserialize(deserializer)?;
+        let witnesses_vec =
+            <Vec<BootstrapWitness> as serde::de::Deserialize>::deserialize(deserializer)?;
         Ok(Self::from_vec(witnesses_vec))
     }
 }

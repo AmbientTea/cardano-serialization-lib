@@ -1,6 +1,6 @@
-use hashlink::LinkedHashMap;
-use crate::*;
 use crate::serialization::utils::{is_break_tag, merge_option_plutus_list};
+use crate::*;
+use hashlink::LinkedHashMap;
 
 impl cbor_event::se::Serialize for MetadataMap {
     fn serialize<'se, W: Write>(
@@ -35,7 +35,7 @@ impl Deserialize for MetadataMap {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("MetadataMap"))?;
+        .map_err(|e| e.annotate("MetadataMap"))?;
         entries.iter().for_each(|(k, v)| {
             if table.insert(k.clone(), v.clone()).is_some() {
                 // Turns out this is totally possible on the actual blockchain
@@ -75,7 +75,7 @@ impl Deserialize for MetadataList {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("MetadataList"))?;
+        .map_err(|e| e.annotate("MetadataList"))?;
         Ok(Self(arr))
     }
 }
@@ -165,7 +165,7 @@ impl Deserialize for TransactionMetadatumLabels {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("TransactionMetadatumLabels"))?;
+        .map_err(|e| e.annotate("TransactionMetadatumLabels"))?;
         Ok(Self(arr))
     }
 }
@@ -202,12 +202,12 @@ impl Deserialize for GeneralTransactionMetadata {
                     return Err(DeserializeFailure::DuplicateKey(Key::Str(String::from(
                         "some complicated/unsupported type",
                     )))
-                        .into());
+                    .into());
                 }
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("GeneralTransactionMetadata"))?;
+        .map_err(|e| e.annotate("GeneralTransactionMetadata"))?;
         Ok(Self(table))
     }
 }
@@ -237,7 +237,7 @@ impl cbor_event::se::Serialize for AuxiliaryData {
                     has_plutus_v2 = scripts.has_version(&Language::new_plutus_v2());
                     has_plutus_v3 = scripts.has_version(&Language::new_plutus_v3());
                     1 + (has_plutus_v2 as u64) + (has_plutus_v3 as u64)
-                },
+                }
                 _ => 0,
             };
 
@@ -312,7 +312,7 @@ impl Deserialize for AuxiliaryData {
                                             read_len.read_elems(1)?;
                                             Ok(GeneralTransactionMetadata::deserialize(raw)?)
                                         })()
-                                            .map_err(|e| e.annotate("metadata"))?,
+                                        .map_err(|e| e.annotate("metadata"))?,
                                     );
                                 }
                                 1 => {
@@ -326,7 +326,7 @@ impl Deserialize for AuxiliaryData {
                                             read_len.read_elems(1)?;
                                             Ok(NativeScripts::deserialize(raw)?)
                                         })()
-                                            .map_err(|e| e.annotate("native_scripts"))?,
+                                        .map_err(|e| e.annotate("native_scripts"))?,
                                     );
                                 }
                                 2 => {
@@ -340,7 +340,7 @@ impl Deserialize for AuxiliaryData {
                                             read_len.read_elems(1)?;
                                             Ok(PlutusScripts::deserialize(raw)?)
                                         })()
-                                            .map_err(|e| e.annotate("plutus_scripts_v1"))?,
+                                        .map_err(|e| e.annotate("plutus_scripts_v1"))?,
                                     );
                                 }
                                 3 => {
@@ -352,9 +352,12 @@ impl Deserialize for AuxiliaryData {
                                     plutus_scripts_v2 = Some(
                                         (|| -> Result<_, DeserializeError> {
                                             read_len.read_elems(1)?;
-                                            Ok(PlutusScripts::deserialize_with_version(raw, &Language::new_plutus_v2())?)
+                                            Ok(PlutusScripts::deserialize_with_version(
+                                                raw,
+                                                &Language::new_plutus_v2(),
+                                            )?)
                                         })()
-                                            .map_err(|e| e.annotate("plutus_scripts_v2"))?,
+                                        .map_err(|e| e.annotate("plutus_scripts_v2"))?,
                                     );
                                 }
                                 4 => {
@@ -366,16 +369,19 @@ impl Deserialize for AuxiliaryData {
                                     plutus_scripts_v3 = Some(
                                         (|| -> Result<_, DeserializeError> {
                                             read_len.read_elems(1)?;
-                                            Ok(PlutusScripts::deserialize_with_version(raw, &Language::new_plutus_v3())?)
+                                            Ok(PlutusScripts::deserialize_with_version(
+                                                raw,
+                                                &Language::new_plutus_v3(),
+                                            )?)
                                         })()
-                                            .map_err(|e| e.annotate("plutus_scripts_v3"))?,
+                                        .map_err(|e| e.annotate("plutus_scripts_v3"))?,
                                     );
                                 }
                                 unknown_key => {
                                     return Err(DeserializeFailure::UnknownKey(Key::Uint(
                                         unknown_key,
                                     ))
-                                        .into())
+                                    .into())
                                 }
                             },
                             CBORType::Text => match raw.text()?.as_str() {
@@ -383,7 +389,7 @@ impl Deserialize for AuxiliaryData {
                                     return Err(DeserializeFailure::UnknownKey(Key::Str(
                                         unknown_key.to_owned(),
                                     ))
-                                        .into())
+                                    .into())
                                 }
                             },
                             CBORType::Special => match len {
@@ -402,10 +408,22 @@ impl Deserialize for AuxiliaryData {
                         read += 1;
                     }
                     read_len.finish()?;
-                    let mut  plutus_scripts = None;
-                    plutus_scripts = merge_option_plutus_list(plutus_scripts, plutus_scripts_v1, &Language::new_plutus_v1());
-                    plutus_scripts = merge_option_plutus_list(plutus_scripts, plutus_scripts_v2, &Language::new_plutus_v2());
-                    plutus_scripts = merge_option_plutus_list(plutus_scripts, plutus_scripts_v3, &Language::new_plutus_v3());
+                    let mut plutus_scripts = None;
+                    plutus_scripts = merge_option_plutus_list(
+                        plutus_scripts,
+                        plutus_scripts_v1,
+                        &Language::new_plutus_v1(),
+                    );
+                    plutus_scripts = merge_option_plutus_list(
+                        plutus_scripts,
+                        plutus_scripts_v2,
+                        &Language::new_plutus_v2(),
+                    );
+                    plutus_scripts = merge_option_plutus_list(
+                        plutus_scripts,
+                        plutus_scripts_v3,
+                        &Language::new_plutus_v3(),
+                    );
 
                     Ok(Self {
                         metadata,
@@ -422,11 +440,11 @@ impl Deserialize for AuxiliaryData {
                     let metadata = (|| -> Result<_, DeserializeError> {
                         Ok(GeneralTransactionMetadata::deserialize(raw)?)
                     })()
-                        .map_err(|e| e.annotate("metadata"))?;
+                    .map_err(|e| e.annotate("metadata"))?;
                     let native_scripts = (|| -> Result<_, DeserializeError> {
                         Ok(NativeScripts::deserialize(raw)?)
                     })()
-                        .map_err(|e| e.annotate("native_scripts"))?;
+                    .map_err(|e| e.annotate("native_scripts"))?;
                     match len {
                         cbor_event::Len::Len(_) => (),
                         cbor_event::Len::Indefinite => match raw.special()? {
@@ -454,6 +472,6 @@ impl Deserialize for AuxiliaryData {
                 _ => return Err(DeserializeFailure::NoVariantMatched)?,
             }
         })()
-            .map_err(|e| e.annotate("AuxiliaryData"))
+        .map_err(|e| e.annotate("AuxiliaryData"))
     }
 }

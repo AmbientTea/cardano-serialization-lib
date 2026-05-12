@@ -1,7 +1,7 @@
-use crate::{Ed25519Signature, JsError, PublicKey, wasm_bindgen};
-use crate::impl_mockchain::key;
-use rand_os::OsRng;
 use crate::chain_crypto::bech32::Bech32;
+use crate::impl_mockchain::key;
+use crate::{wasm_bindgen, Ed25519Signature, JsError, PublicKey};
+use rand_os::OsRng;
 
 #[wasm_bindgen]
 pub struct PrivateKey(pub(crate) key::EitherEd25519SecretKey);

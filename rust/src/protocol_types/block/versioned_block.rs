@@ -10,7 +10,7 @@ pub enum BlockEra {
     Alonzo,
     Babbage,
     Conway,
-    Unknown
+    Unknown,
 }
 
 #[wasm_bindgen]
@@ -25,10 +25,7 @@ impl_to_from!(VersionedBlock);
 #[wasm_bindgen]
 impl VersionedBlock {
     pub fn new(block: Block, era_code: u32) -> VersionedBlock {
-        VersionedBlock {
-            block,
-            era_code,
-        }
+        VersionedBlock { block, era_code }
     }
 
     pub fn block(&self) -> Block {

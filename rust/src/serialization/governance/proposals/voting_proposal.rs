@@ -1,4 +1,4 @@
-use crate::serialization::{check_len};
+use crate::serialization::check_len;
 use crate::*;
 
 impl Serialize for VotingProposal {
@@ -22,20 +22,14 @@ impl DeserializeEmbeddedGroup for VotingProposal {
         raw: &mut Deserializer<R>,
         len: cbor_event::Len,
     ) -> Result<Self, DeserializeError> {
-        check_len(
-            len,
-            4,
-            "(deposit, reward_account, gov_action, anchor)",
-        )?;
+        check_len(len, 4, "(deposit, reward_account, gov_action, anchor)")?;
 
-        let deposit = Coin::deserialize(raw)
-            .map_err(|e| e.annotate("deposit"))?;
-        let reward_account = RewardAddress::deserialize(raw)
-            .map_err(|e| e.annotate("reward_account"))?;
-        let gov_action = GovernanceAction::deserialize(raw)
-            .map_err(|e| e.annotate("gov_action"))?;
-        let anchor = Anchor::deserialize(raw)
-            .map_err(|e| e.annotate("anchor"))?;
+        let deposit = Coin::deserialize(raw).map_err(|e| e.annotate("deposit"))?;
+        let reward_account =
+            RewardAddress::deserialize(raw).map_err(|e| e.annotate("reward_account"))?;
+        let gov_action =
+            GovernanceAction::deserialize(raw).map_err(|e| e.annotate("gov_action"))?;
+        let anchor = Anchor::deserialize(raw).map_err(|e| e.annotate("anchor"))?;
 
         return Ok(VotingProposal {
             deposit,

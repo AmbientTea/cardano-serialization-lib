@@ -140,8 +140,8 @@ impl std::str::FromStr for BigNum {
 
 impl serde::Serialize for BigNum {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&self.to_str())
     }
@@ -149,8 +149,8 @@ impl serde::Serialize for BigNum {
 
 impl<'de> serde::de::Deserialize<'de> for BigNum {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let s = <String as serde::de::Deserialize>::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_e| {

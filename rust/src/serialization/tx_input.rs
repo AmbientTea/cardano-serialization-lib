@@ -20,21 +20,21 @@ impl Deserialize for TransactionInput {
             match len {
                 cbor_event::Len::Len(_) =>
                 /* TODO: check finite len somewhere */
-                    {
-                        ()
-                    }
+                {
+                    ()
+                }
                 cbor_event::Len::Indefinite => match raw.special()? {
                     CBORSpecial::Break =>
                     /* it's ok */
-                        {
-                            ()
-                        }
+                    {
+                        ()
+                    }
                     _ => return Err(DeserializeFailure::EndingBreakMissing.into()),
                 },
             }
             ret
         })()
-            .map_err(|e| e.annotate("TransactionInput"))
+        .map_err(|e| e.annotate("TransactionInput"))
     }
 }
 

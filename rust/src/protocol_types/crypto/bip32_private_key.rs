@@ -1,7 +1,7 @@
-use crate::*;
-use crate::impl_mockchain::key;
-use rand_os::OsRng;
 use crate::chain_crypto::bech32::Bech32;
+use crate::impl_mockchain::key;
+use crate::*;
+use rand_os::OsRng;
 
 #[wasm_bindgen]
 pub struct Bip32PrivateKey(chain_crypto::SecretKey<chain_crypto::Ed25519Bip32>);
@@ -28,7 +28,9 @@ impl Bip32PrivateKey {
     /// the public key may fail (if the derivation index is invalid).
     ///
     pub fn derive(&self, index: u32) -> Bip32PrivateKey {
-        Bip32PrivateKey(crate::chain_crypto::derive::derive_sk_ed25519(&self.0, index))
+        Bip32PrivateKey(crate::chain_crypto::derive::derive_sk_ed25519(
+            &self.0, index,
+        ))
     }
 
     /// 128-byte xprv a key format in Cardano that some software still uses or requires
@@ -97,7 +99,9 @@ impl Bip32PrivateKey {
     }
 
     pub fn from_bip39_entropy(entropy: &[u8], password: &[u8]) -> Bip32PrivateKey {
-        Bip32PrivateKey(crate::chain_crypto::derive::from_bip39_entropy(&entropy, &password))
+        Bip32PrivateKey(crate::chain_crypto::derive::from_bip39_entropy(
+            &entropy, &password,
+        ))
     }
 
     pub fn chaincode(&self) -> Vec<u8> {

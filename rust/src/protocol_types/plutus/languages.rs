@@ -2,7 +2,7 @@ use crate::*;
 
 #[wasm_bindgen]
 #[derive(
-Clone, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
+    Clone, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize, JsonSchema,
 )]
 pub struct Languages(pub(crate) Vec<Language>);
 

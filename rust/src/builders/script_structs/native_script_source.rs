@@ -19,7 +19,7 @@ impl NativeScriptSourceEnum {
             NativeScriptSourceEnum::NativeScript(script, required_signers) => {
                 match required_signers {
                     Some(signers) => Some(signers.clone()),
-                    None => Some(script.into())
+                    None => Some(script.into()),
                 }
             }
             NativeScriptSourceEnum::RefInput(_, _, required_signers, _) => required_signers.clone(),
@@ -57,7 +57,7 @@ impl NativeScriptSource {
             input.clone(),
             script_hash.clone(),
             None,
-            script_size
+            script_size,
         ))
     }
 
@@ -72,7 +72,7 @@ impl NativeScriptSource {
     pub fn get_ref_script_size(&self) -> Option<usize> {
         match &self.0 {
             NativeScriptSourceEnum::NativeScript(..) => None,
-            NativeScriptSourceEnum::RefInput(.., size) => Some(*size)
+            NativeScriptSourceEnum::RefInput(.., size) => Some(*size),
         }
     }
 }

@@ -1,9 +1,9 @@
 use crate::builders::batch_tools::cbor_calculator::CborCalculator;
+use crate::builders::fakes::{fake_raw_key_public, fake_raw_key_sig};
+use crate::fakes::fake_bootstrap_witness;
 use crate::serialization::map_names::WitnessSetNames;
 use crate::*;
 use std::collections::HashSet;
-use crate::builders::fakes::{fake_raw_key_public, fake_raw_key_sig};
-use crate::fakes::fake_bootstrap_witness;
 
 #[derive(Clone)]
 pub(super) struct WitnessesCalculator {
@@ -107,7 +107,8 @@ impl WitnessesCalculator {
                 let mut result = Vkeywitnesses::new();
                 for i in 0..x {
                     let raw_key_public = fake_raw_key_public(i);
-                    let fake_vkey_witness = Vkeywitness::new(&Vkey::new(&raw_key_public), &fake_sig);
+                    let fake_vkey_witness =
+                        Vkeywitness::new(&Vkey::new(&raw_key_public), &fake_sig);
                     result.add(&fake_vkey_witness.clone());
                 }
                 Some(result)
@@ -128,21 +129,13 @@ impl WitnessesCalculator {
             }
         };
 
-        TransactionWitnessSet::new_with_partial_dedup(
-            vkeys,
-            None,
-            bootstrap_keys,
-            None,
-            None,
-            None,
-        )
+        TransactionWitnessSet::new_with_partial_dedup(vkeys, None, bootstrap_keys, None, None, None)
     }
 
     fn add_vkey(&mut self) {
         if self.vkeys_count == 0 {
             if self.used_fields.len() > 0 {
-                self.total_size -=
-                    CborCalculator::get_witnesses_set_struct_size(&self.used_fields);
+                self.total_size -= CborCalculator::get_witnesses_set_struct_size(&self.used_fields);
             }
 
             self.used_fields.insert(WitnessSetNames::Vkeys);
@@ -161,8 +154,7 @@ impl WitnessesCalculator {
         self.bootsraps.push(address.clone());
         if self.boostrap_count == 0 {
             if self.used_fields.len() > 0 {
-                self.total_size -=
-                    CborCalculator::get_witnesses_set_struct_size(&self.used_fields);
+                self.total_size -= CborCalculator::get_witnesses_set_struct_size(&self.used_fields);
             }
 
             self.used_fields.insert(WitnessSetNames::Bootstraps);

@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::*;
+use std::collections::BTreeMap;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -170,7 +170,8 @@ impl WithdrawalsBuilder {
     pub(crate) fn get_script_ref_inputs_with_size(
         &self,
     ) -> impl Iterator<Item = (&TransactionInput, usize)> {
-        self.withdrawals.iter()
+        self.withdrawals
+            .iter()
             .filter_map(|(_, (_, script_wit))| script_wit.as_ref())
             .filter_map(|script_wit| script_wit.get_script_ref_input_with_size())
     }

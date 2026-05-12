@@ -41,21 +41,21 @@ impl Deserialize for HeaderBody {
             match len {
                 cbor_event::Len::Len(_) =>
                 /* TODO: check finite len somewhere */
-                    {
-                        ()
-                    }
+                {
+                    ()
+                }
                 cbor_event::Len::Indefinite => match raw.special()? {
                     CBORSpecial::Break =>
                     /* it's ok */
-                        {
-                            ()
-                        }
+                    {
+                        ()
+                    }
                     _ => return Err(DeserializeFailure::EndingBreakMissing.into()),
                 },
             }
             ret
         })()
-            .map_err(|e| e.annotate("HeaderBody"))
+        .map_err(|e| e.annotate("HeaderBody"))
     }
 }
 
@@ -79,7 +79,7 @@ impl DeserializeEmbeddedGroup for HeaderBody {
                 }
             })
         })()
-            .map_err(|e| e.annotate("prev_hash"))?;
+        .map_err(|e| e.annotate("prev_hash"))?;
         let issuer_vkey = (|| -> Result<_, DeserializeError> { Ok(Vkey::deserialize(raw)?) })()
             .map_err(|e| e.annotate("issuer_vkey"))?;
         let vrf_vkey = (|| -> Result<_, DeserializeError> { Ok(VRFVKey::deserialize(raw)?) })()
@@ -125,7 +125,7 @@ impl DeserializeEmbeddedGroup for HeaderBody {
                 Ok(OperationalCert::deserialize_as_embedded_group(raw, len)?)
             }
         })()
-            .map_err(|e| e.annotate("operational_cert"))?;
+        .map_err(|e| e.annotate("operational_cert"))?;
         let protocol_version = (|| -> Result<_, DeserializeError> {
             if raw.cbor_type()? == CBORType::Array {
                 Ok(ProtocolVersion::deserialize(raw)?)
@@ -133,7 +133,7 @@ impl DeserializeEmbeddedGroup for HeaderBody {
                 Ok(ProtocolVersion::deserialize_as_embedded_group(raw, len)?)
             }
         })()
-            .map_err(|e| e.annotate("protocol_version"))?;
+        .map_err(|e| e.annotate("protocol_version"))?;
         Ok(HeaderBody {
             block_number,
             slot,

@@ -10,7 +10,7 @@ impl PlutusScriptSourceEnum {
     pub fn script_hash(&self) -> ScriptHash {
         match self {
             PlutusScriptSourceEnum::Script(script, ..) => script.hash(),
-            PlutusScriptSourceEnum::RefInput(script_ref, ..) => script_ref.script_hash.clone()
+            PlutusScriptSourceEnum::RefInput(script_ref, ..) => script_ref.script_hash.clone(),
         }
     }
 
@@ -60,7 +60,7 @@ impl PlutusScriptSource {
             PlutusScriptSourceEnum::Script(_, signers) => {
                 *signers = Some(key_hashes.clone());
             }
-            PlutusScriptSourceEnum::RefInput(_ , signers) => {
+            PlutusScriptSourceEnum::RefInput(_, signers) => {
                 *signers = Some(key_hashes.clone());
             }
         }
@@ -69,7 +69,7 @@ impl PlutusScriptSource {
     pub fn get_ref_script_size(&self) -> Option<usize> {
         match &self.0 {
             PlutusScriptSourceEnum::Script(..) => None,
-            PlutusScriptSourceEnum::RefInput(script_ref, ..) => Some(script_ref.script_size)
+            PlutusScriptSourceEnum::RefInput(script_ref, ..) => Some(script_ref.script_size),
         }
     }
 }

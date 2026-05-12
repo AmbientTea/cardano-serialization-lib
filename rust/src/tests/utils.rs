@@ -774,7 +774,6 @@ fn has_transaction_set_tag_mixed() {
     assert_eq!(tx_sets, TransactionSetsState::MixedSets);
 }
 
-
 #[test]
 fn value_empty_asset_equal() {
     let a = Value {

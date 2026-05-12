@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl cbor_event::se::Serialize for Costmdls {
     fn serialize<'se, W: Write>(
@@ -33,12 +33,12 @@ impl Deserialize for Costmdls {
                     return Err(DeserializeFailure::DuplicateKey(Key::Str(String::from(
                         "some complicated/unsupported type",
                     )))
-                        .into());
+                    .into());
                 }
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("Costmdls"))?;
+        .map_err(|e| e.annotate("Costmdls"))?;
         Ok(Self(table))
     }
 }

@@ -419,7 +419,7 @@ mod tests {
         fn saturating_add(a: u64, b: u64) {
             use num_traits::SaturatingAdd;
             if a <= u64::MAX - b {
-                assert_eq!(TestNum(a).saturating_add(&TestNum(b)), TestNum(a+b));
+                assert_eq!(TestNum(a).saturating_add(&TestNum(b)), TestNum(a + b));
             } else {
                 assert_eq!(TestNum(a).saturating_add(&TestNum(b)), TestNum(u64::MAX));
             }
@@ -693,13 +693,19 @@ mod tests {
 
         #[quickcheck]
         fn uses_vec_into_iterator_owned(vec: Vec<u32>) {
-            let wrapper = TestNamedWrapper { items: vec.clone(), extra: None };
+            let wrapper = TestNamedWrapper {
+                items: vec.clone(),
+                extra: None,
+            };
             assert_eq!(wrapper.into_iter().collect::<Vec<_>>(), vec);
         }
 
         #[quickcheck]
         fn uses_vec_into_iterator_ref(vec: Vec<u32>) {
-            let wrapper = TestNamedWrapper { items: vec.clone(), extra: None };
+            let wrapper = TestNamedWrapper {
+                items: vec.clone(),
+                extra: None,
+            };
             assert_eq!(
                 (&wrapper).into_iter().collect::<Vec<_>>(),
                 vec.iter().collect::<Vec<_>>()
@@ -715,7 +721,10 @@ mod tests {
 
         #[quickcheck]
         fn uses_vec_extend(vec1: Vec<u32>, vec2: Vec<u32>) {
-            let mut wrapper = TestNamedWrapper { items: vec1.clone(), extra: Some(true) };
+            let mut wrapper = TestNamedWrapper {
+                items: vec1.clone(),
+                extra: Some(true),
+            };
             wrapper.extend(vec2.iter().cloned());
             assert_eq!(wrapper.items, [vec1, vec2].concat());
             assert_eq!(wrapper.extra, Some(true));
@@ -725,7 +734,10 @@ mod tests {
         fn uses_vec_index(vec: Vec<u32>, index: usize) {
             let len = vec.len();
             if len != 0 {
-                let wrapper = TestNamedWrapper { items: vec.clone(), extra: None };
+                let wrapper = TestNamedWrapper {
+                    items: vec.clone(),
+                    extra: None,
+                };
                 assert_eq!(wrapper[index % len], vec[index % len]);
             }
         }
@@ -739,7 +751,10 @@ mod tests {
 
         #[test]
         fn deref_to_slice() {
-            let wrapper = TestNamedWrapper { items: vec![1, 2, 3], extra: None };
+            let wrapper = TestNamedWrapper {
+                items: vec![1, 2, 3],
+                extra: None,
+            };
             let slice: &[u32] = &wrapper;
             assert_eq!(slice, &[1, 2, 3]);
             assert_eq!(wrapper.first(), Some(&1));
@@ -748,8 +763,14 @@ mod tests {
         #[test]
         fn none_or_empty() {
             use crate::NoneOrEmpty;
-            let empty = TestNamedWrapper { items: vec![], extra: None };
-            let non_empty = TestNamedWrapper { items: vec![1], extra: None };
+            let empty = TestNamedWrapper {
+                items: vec![],
+                extra: None,
+            };
+            let non_empty = TestNamedWrapper {
+                items: vec![1],
+                extra: None,
+            };
             assert!(empty.is_none_or_empty());
             assert!(!non_empty.is_none_or_empty());
         }

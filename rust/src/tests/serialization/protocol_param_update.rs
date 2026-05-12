@@ -1,9 +1,11 @@
+use crate::tests::fakes::{
+    fake_cost_models, fake_drep_voting_thresholds, fake_pool_voting_thresholds,
+};
 use crate::*;
-use crate::tests::fakes::{fake_cost_models, fake_drep_voting_thresholds, fake_pool_voting_thresholds};
 
 #[test]
 fn protocol_param_update_ser_round_trip() {
-    let pp_update= ProtocolParamUpdate {
+    let pp_update = ProtocolParamUpdate {
         minfee_a: Some(Coin::from(1_444u32)),
         minfee_b: Some(Coin::from(2_444u32)),
         max_block_body_size: Some(3_444u32),
@@ -72,7 +74,7 @@ fn protocol_param_update_ser_round_trip() {
 
 #[test]
 fn pool_voting_thresholds_ser_round_trip() {
-   let thresholds = PoolVotingThresholds::new(
+    let thresholds = PoolVotingThresholds::new(
         &UnitInterval::new(&BigNum::from(44_401u32), &BigNum::from(44_402u32)),
         &UnitInterval::new(&BigNum::from(44_403u32), &BigNum::from(44_404u32)),
         &UnitInterval::new(&BigNum::from(44_405u32), &BigNum::from(44_406u32)),

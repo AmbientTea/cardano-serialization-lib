@@ -30,7 +30,10 @@ impl CommitteeHotAuth {
         self.committee_hot_credential.clone()
     }
 
-    pub fn new(committee_cold_credential: &Credential, committee_hot_credential: &Credential) -> Self {
+    pub fn new(
+        committee_cold_credential: &Credential,
+        committee_hot_credential: &Credential,
+    ) -> Self {
         Self {
             committee_cold_credential: committee_cold_credential.clone(),
             committee_hot_credential: committee_hot_credential.clone(),

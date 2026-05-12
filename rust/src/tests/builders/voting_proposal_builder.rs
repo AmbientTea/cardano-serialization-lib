@@ -1,4 +1,8 @@
-use crate::tests::fakes::{fake_full_protocol_param_update, fake_anchor, fake_change_address, fake_plutus_script, fake_tx_builder_with_amount_and_deposit_params, fake_key_hash, fake_reward_address, fake_script_hash, fake_tx_hash};
+use crate::tests::fakes::{
+    fake_anchor, fake_change_address, fake_full_protocol_param_update, fake_key_hash,
+    fake_plutus_script, fake_reward_address, fake_script_hash,
+    fake_tx_builder_with_amount_and_deposit_params, fake_tx_hash,
+};
 use crate::*;
 
 fn total_tx_output_with_fee(tx: &Transaction) -> Coin {

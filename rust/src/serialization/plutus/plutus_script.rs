@@ -16,7 +16,10 @@ impl Deserialize for PlutusScript {
 }
 
 impl PlutusScript {
-    pub(crate) fn deserialize_with_version<R: BufRead + Seek>(raw: &mut Deserializer<R>, version: &Language) -> Result<Self, DeserializeError> {
+    pub(crate) fn deserialize_with_version<R: BufRead + Seek>(
+        raw: &mut Deserializer<R>,
+        version: &Language,
+    ) -> Result<Self, DeserializeError> {
         Ok(Self::new_with_version(raw.bytes()?, version))
     }
 }

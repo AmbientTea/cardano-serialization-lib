@@ -42,7 +42,6 @@ struct NativeMints {
 }
 
 impl NativeMints {
-
     #[allow(dead_code)]
     fn script_hash(&self) -> PolicyID {
         match &self.script {
@@ -344,10 +343,9 @@ impl MintBuilder {
                 ScriptMint::Plutus(plutus_mints) => {
                     plutus_witnesses.push(PlutusWitness::new_with_ref_without_datum(
                         &PlutusScriptSource(plutus_mints.script.clone()),
-                        &plutus_mints.redeemer.clone_with_index_and_tag(
-                            &BigNum::from(index),
-                            &tag,
-                        ),
+                        &plutus_mints
+                            .redeemer
+                            .clone_with_index_and_tag(&BigNum::from(index), &tag),
                     ));
                 }
                 _ => {}

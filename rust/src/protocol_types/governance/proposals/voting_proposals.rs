@@ -1,20 +1,16 @@
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
-use std::slice;
-use std::iter::Map;
-use std::collections::HashSet;
-use std::cmp::Ordering;
-use std::sync::Arc;
+use crate::*;
 use itertools::Itertools;
 use schemars::JsonSchema;
-use crate::*;
+use std::cmp::Ordering;
+use std::collections::HashSet;
+use std::hash::{Hash, Hasher};
+use std::iter::Map;
+use std::ops::Deref;
+use std::slice;
+use std::sync::Arc;
 
 #[wasm_bindgen]
-#[derive(
-    Clone,
-    Debug,
-    Default
-)]
+#[derive(Clone, Debug, Default)]
 pub struct VotingProposals {
     proposals: Vec<Arc<VotingProposal>>,
     dedup: HashSet<Arc<VotingProposal>>,
@@ -156,12 +152,10 @@ impl serde::Serialize for VotingProposals {
 
 impl<'de> serde::de::Deserialize<'de> for VotingProposals {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
-        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(
-            deserializer,
-        )?;
+        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(deserializer)?;
         Ok(Self::from_vec(vec))
     }
 }

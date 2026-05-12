@@ -1,4 +1,9 @@
-use crate::tests::fakes::{fake_base_address, fake_base_script_address, fake_enterprise_address, fake_enterprise_script_address, fake_plutus_script, fake_pointer_address, fake_pointer_script_address, fake_redeemer, fake_reward_address, fake_key_hash, fake_script_hash, fake_tx_input};
+use crate::tests::fakes::{
+    fake_base_address, fake_base_script_address, fake_enterprise_address,
+    fake_enterprise_script_address, fake_key_hash, fake_plutus_script, fake_pointer_address,
+    fake_pointer_script_address, fake_redeemer, fake_reward_address, fake_script_hash,
+    fake_tx_input,
+};
 use crate::*;
 
 #[test]
@@ -141,8 +146,7 @@ fn plutus_script_input() {
 
     let plutus_script = fake_plutus_script(1, &Language::new_plutus_v2());
     let plutus_script_source = PlutusScriptSource::new(&plutus_script);
-    let redeemer = fake_redeemer(1)
-        .clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
+    let redeemer = fake_redeemer(1).clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
 
     let datum = PlutusData::new_empty_constr_plutus_data(&BigNum::zero());
     let plutus_witness =
@@ -184,8 +188,7 @@ fn plutus_script_input_with_required_signers() {
     let mut plutus_script_source = PlutusScriptSource::new(&plutus_script);
     plutus_script_source.set_required_signers(&key_hashes);
 
-    let redeemer = fake_redeemer(1)
-        .clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
+    let redeemer = fake_redeemer(1).clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
 
     let datum = PlutusData::new_empty_constr_plutus_data(&BigNum::zero());
     let plutus_witness =
@@ -231,8 +234,7 @@ fn plutus_script_input_with_ref() {
     let plutus_script_source =
         PlutusScriptSource::new_ref_input(&script_hash, &ref_input_1, &lang_ver, script_size);
 
-    let redeemer = fake_redeemer(1)
-        .clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
+    let redeemer = fake_redeemer(1).clone_with_index_and_tag(&BigNum(0), &RedeemerTag::new_spend());
 
     let plutus_witness = PlutusWitness::new_with_ref(
         &plutus_script_source,
@@ -273,16 +275,10 @@ fn native_script_input() {
 
     let key_hash_1 = fake_key_hash(1);
     let mut native_scripts = NativeScripts::new();
-    native_scripts.add(
-        &NativeScript::new_script_pubkey(
-            &ScriptPubkey::new(&key_hash_1)
-        )
-    );
-    let native_script = NativeScript::new_script_all(
-        &ScriptAll::new(
-            &native_scripts
-        ),
-    );
+    native_scripts.add(&NativeScript::new_script_pubkey(&ScriptPubkey::new(
+        &key_hash_1,
+    )));
+    let native_script = NativeScript::new_script_all(&ScriptAll::new(&native_scripts));
 
     let native_script_source = NativeScriptSource::new(&native_script);
 
@@ -316,16 +312,10 @@ fn native_script_custom_required_witness_input() {
     let key_hash_2 = fake_key_hash(2);
 
     let mut native_scripts = NativeScripts::new();
-    native_scripts.add(
-        &NativeScript::new_script_pubkey(
-            &ScriptPubkey::new(&key_hash_1)
-        )
-    );
-    let native_script = NativeScript::new_script_all(
-        &ScriptAll::new(
-            &native_scripts
-        ),
-    );
+    native_scripts.add(&NativeScript::new_script_pubkey(&ScriptPubkey::new(
+        &key_hash_1,
+    )));
+    let native_script = NativeScript::new_script_all(&ScriptAll::new(&native_scripts));
 
     let mut native_script_source = NativeScriptSource::new(&native_script);
     let mut key_hashes = Ed25519KeyHashes::new();

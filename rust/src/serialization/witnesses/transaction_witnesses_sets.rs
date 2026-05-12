@@ -1,9 +1,9 @@
-use std::io::{BufRead, Seek, Write};
-use cbor_event::de::Deserializer;
-use cbor_event::se::Serializer;
-use crate::{DeserializeError, TransactionWitnessSet, TransactionWitnessSets};
 use crate::protocol_types::Deserialize;
 use crate::serialization::utils::is_break_tag;
+use crate::{DeserializeError, TransactionWitnessSet, TransactionWitnessSets};
+use cbor_event::de::Deserializer;
+use cbor_event::se::Serializer;
+use std::io::{BufRead, Seek, Write};
 
 impl cbor_event::se::Serialize for TransactionWitnessSets {
     fn serialize<'se, W: Write>(
@@ -34,7 +34,7 @@ impl Deserialize for TransactionWitnessSets {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("TransactionWitnessSets"))?;
+        .map_err(|e| e.annotate("TransactionWitnessSets"))?;
         Ok(Self(arr))
     }
 }

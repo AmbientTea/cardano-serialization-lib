@@ -1,5 +1,8 @@
+use crate::tests::fakes::{
+    fake_plutus_script_and_hash, fake_reallistic_tx_builder, fake_redeemer, fake_redeemer_with_tag,
+    fake_script_hash, fake_tx_input,
+};
 use crate::*;
-use crate::tests::fakes::{fake_reallistic_tx_builder, fake_redeemer, fake_plutus_script_and_hash, fake_script_hash, fake_tx_input, fake_redeemer_with_tag};
 
 #[test]
 fn plutus_mint_with_script_ref_test() {
@@ -28,12 +31,16 @@ fn plutus_mint_with_script_ref_test() {
     );
     let mint_witnes = MintWitness::new_plutus_script(&plutus_script_source, &redeemer);
     let mint_witnes_ref = MintWitness::new_plutus_script(&plutus_script_source_ref, &redeemer2);
-    mint_builder.add_asset(&mint_witnes, &asset_name, &Int::new(&BigNum::from(100u64))).unwrap();
-    mint_builder.add_asset(
-        &mint_witnes_ref,
-        &asset_name,
-        &Int::new(&BigNum::from(100u64)),
-    ).unwrap();
+    mint_builder
+        .add_asset(&mint_witnes, &asset_name, &Int::new(&BigNum::from(100u64)))
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes_ref,
+            &asset_name,
+            &Int::new(&BigNum::from(100u64)),
+        )
+        .unwrap();
 
     let output_adress = Address::from_bech32("addr_test1qpm5njmgzf4t7225v6j34wl30xfrufzt3jtqtdzf3en9ahpmnhtmynpasyc8fq75zv0uaj86vzsr7g3g8q5ypgu5fwtqr9zsgj").unwrap();
     let mut output_assets = MultiAsset::new();
@@ -44,18 +51,22 @@ fn plutus_mint_with_script_ref_test() {
     let output = TransactionOutput::new(&output_adress, &output_value);
 
     let mut col_builder = TxInputsBuilder::new();
-    col_builder.add_regular_input(
-        &colateral_adress,
-        &colateral_input,
-        &Value::new(&Coin::from(1000000000u64)),
-    ).unwrap();
+    col_builder
+        .add_regular_input(
+            &colateral_adress,
+            &colateral_input,
+            &Value::new(&Coin::from(1000000000u64)),
+        )
+        .unwrap();
     tx_builder.set_collateral(&col_builder);
     tx_builder.add_output(&output).unwrap();
-    tx_builder.add_regular_input(
-        &output_adress,
-        &tx_input,
-        &Value::new(&BigNum::from(100000000000u64)),
-    ).unwrap();
+    tx_builder
+        .add_regular_input(
+            &output_adress,
+            &tx_input,
+            &Value::new(&BigNum::from(100000000000u64)),
+        )
+        .unwrap();
     tx_builder.set_mint_builder(&mint_builder);
 
     tx_builder
@@ -92,7 +103,7 @@ fn different_redeemers_error() {
     let res1 = mint_builder.add_asset(&mint_witnes, &asset_name, &Int::new(&BigNum::from(100u64)));
     assert!(res1.is_ok());
 
-    let res1 =  mint_builder.add_asset(&mint_witnes2, &asset_name, &Int::new(&BigNum::from(100u64)));
+    let res1 = mint_builder.add_asset(&mint_witnes2, &asset_name, &Int::new(&BigNum::from(100u64)));
     assert!(res1.is_err());
 }
 
@@ -114,7 +125,11 @@ fn same_redeemers() {
     let res1 = mint_builder.add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64)));
     assert!(res1.is_ok());
 
-    let res1 =  mint_builder.add_asset(&mint_witnes2, &asset_name2, &Int::new(&BigNum::from(100u64)));
+    let res1 = mint_builder.add_asset(
+        &mint_witnes2,
+        &asset_name2,
+        &Int::new(&BigNum::from(100u64)),
+    );
     assert!(res1.is_ok());
 }
 
@@ -132,7 +147,9 @@ fn plutus_mint_test() {
     let mut mint_builder = MintBuilder::new();
     let plutus_script_source = PlutusScriptSource::new(&plutus_script);
     let mint_witnes = MintWitness::new_plutus_script(&plutus_script_source, &redeemer);
-    mint_builder.add_asset(&mint_witnes, &asset_name, &Int::new(&BigNum::from(100u64))).unwrap();
+    mint_builder
+        .add_asset(&mint_witnes, &asset_name, &Int::new(&BigNum::from(100u64)))
+        .unwrap();
 
     let output_adress = Address::from_bech32("addr_test1qpm5njmgzf4t7225v6j34wl30xfrufzt3jtqtdzf3en9ahpmnhtmynpasyc8fq75zv0uaj86vzsr7g3g8q5ypgu5fwtqr9zsgj").unwrap();
     let mut output_assets = MultiAsset::new();
@@ -143,18 +160,22 @@ fn plutus_mint_test() {
     let output = TransactionOutput::new(&output_adress, &output_value);
 
     let mut col_builder = TxInputsBuilder::new();
-    col_builder.add_regular_input(
-        &colateral_adress,
-        &colateral_input,
-        &Value::new(&Coin::from(1000000000000u64)),
-    ).unwrap();
+    col_builder
+        .add_regular_input(
+            &colateral_adress,
+            &colateral_input,
+            &Value::new(&Coin::from(1000000000000u64)),
+        )
+        .unwrap();
     tx_builder.set_collateral(&col_builder);
     tx_builder.add_output(&output).unwrap();
-    tx_builder.add_regular_input(
-        &output_adress,
-        &tx_input,
-        &Value::new(&BigNum::from(100000000000000u64)),
-    ).unwrap();
+    tx_builder
+        .add_regular_input(
+            &output_adress,
+            &tx_input,
+            &Value::new(&BigNum::from(100000000000000u64)),
+        )
+        .unwrap();
     tx_builder.set_mint_builder(&mint_builder);
 
     tx_builder
@@ -195,17 +216,21 @@ fn ref_inputs() {
         &Language::new_plutus_v2(),
         0,
     );
-    let native_script_source = NativeScriptSource::new_ref_input(
-        &script_hash_2,
-        &tx_input_ref2,
-        0,
-    );
+    let native_script_source = NativeScriptSource::new_ref_input(&script_hash_2, &tx_input_ref2, 0);
 
     let mint_witnes = MintWitness::new_plutus_script(&plutus_script_source, &redeemer);
     let mint_witnes2 = MintWitness::new_native_script(&native_script_source);
 
-    mint_builder.add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes2, &asset_name2, &Int::new(&BigNum::from(100u64))).unwrap();
+    mint_builder
+        .add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64)))
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes2,
+            &asset_name2,
+            &Int::new(&BigNum::from(100u64)),
+        )
+        .unwrap();
 
     let ref_inputs = mint_builder.get_ref_inputs();
 
@@ -234,18 +259,28 @@ fn multiple_mints() {
         0,
     );
 
-    let native_script_source = NativeScriptSource::new_ref_input(
-        &script_hash_2,
-        &tx_input_ref2,
-        0,
-    );
+    let native_script_source = NativeScriptSource::new_ref_input(&script_hash_2, &tx_input_ref2, 0);
 
     let mint_witnes = MintWitness::new_plutus_script(&plutus_script_source, &redeemer);
     let mint_witnes2 = MintWitness::new_native_script(&native_script_source);
 
-    mint_builder.add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes2, &asset_name2, &Int::new(&BigNum::from(101u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes2, &asset_name3, &Int::new(&BigNum::from(102u64))).unwrap();
+    mint_builder
+        .add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64)))
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes2,
+            &asset_name2,
+            &Int::new(&BigNum::from(101u64)),
+        )
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes2,
+            &asset_name3,
+            &Int::new(&BigNum::from(102u64)),
+        )
+        .unwrap();
 
     let mint = mint_builder.build().expect("Failed to build mint");
     assert_eq!(mint.len(), 2);
@@ -269,9 +304,8 @@ fn multiple_mints() {
 
 #[test]
 fn native_script_mint() {
-    let native_script = NativeScript::new_timelock_start(
-        &TimelockStart::new_timelockstart(&BigNum::from(100u64)),
-    );
+    let native_script =
+        NativeScript::new_timelock_start(&TimelockStart::new_timelockstart(&BigNum::from(100u64)));
     let script_hash = native_script.hash();
 
     let asset_name1 = AssetName::from_hex("44544e4654").unwrap();
@@ -280,7 +314,9 @@ fn native_script_mint() {
 
     let native_script_source = NativeScriptSource::new(&native_script);
     let mint_witnes = MintWitness::new_native_script(&native_script_source);
-    mint_builder.add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64))).unwrap();
+    mint_builder
+        .add_asset(&mint_witnes, &asset_name1, &Int::new(&BigNum::from(100u64)))
+        .unwrap();
 
     let mint = mint_builder.build().expect("Failed to build mint");
     assert_eq!(mint.len(), 1);
@@ -323,37 +359,50 @@ fn different_script_type_error() {
         0,
     );
 
-    let native_script_source1 = NativeScriptSource::new_ref_input(
-        &script_hash_2,
-        &tx_input_ref2,
-        0,
-    );
-    let native_script_source2 = NativeScriptSource::new_ref_input(
-        &script_hash_1,
-        &tx_input_ref1,
-        0,
-    );
+    let native_script_source1 =
+        NativeScriptSource::new_ref_input(&script_hash_2, &tx_input_ref2, 0);
+    let native_script_source2 =
+        NativeScriptSource::new_ref_input(&script_hash_1, &tx_input_ref1, 0);
 
     let mint_witnes_plutus_1 = MintWitness::new_plutus_script(&plutus_script_source1, &redeemer);
     let mint_witnes_plutus_2 = MintWitness::new_plutus_script(&plutus_script_source2, &redeemer);
     let mint_witnes_native_1 = MintWitness::new_native_script(&native_script_source1);
     let mint_witnes_native_2 = MintWitness::new_native_script(&native_script_source2);
 
-    mint_builder.add_asset(&mint_witnes_plutus_1, &asset_name1, &Int::new(&BigNum::from(100u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes_native_1, &asset_name2, &Int::new(&BigNum::from(101u64))).unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes_plutus_1,
+            &asset_name1,
+            &Int::new(&BigNum::from(100u64)),
+        )
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes_native_1,
+            &asset_name2,
+            &Int::new(&BigNum::from(101u64)),
+        )
+        .unwrap();
 
-    let res = mint_builder.add_asset(&mint_witnes_plutus_2, &asset_name1, &Int::new(&BigNum::from(100u64)));
+    let res = mint_builder.add_asset(
+        &mint_witnes_plutus_2,
+        &asset_name1,
+        &Int::new(&BigNum::from(100u64)),
+    );
     assert!(res.is_err());
 
-    let res = mint_builder.add_asset(&mint_witnes_native_2, &asset_name2, &Int::new(&BigNum::from(101u64)));
+    let res = mint_builder.add_asset(
+        &mint_witnes_native_2,
+        &asset_name2,
+        &Int::new(&BigNum::from(101u64)),
+    );
     assert!(res.is_err());
 }
 
 #[test]
 fn wrong_witness_type_ref_error() {
-    let native_script = NativeScript::new_timelock_start(
-        &TimelockStart::new_timelockstart(&BigNum::from(100u64)),
-    );
+    let native_script =
+        NativeScript::new_timelock_start(&TimelockStart::new_timelockstart(&BigNum::from(100u64)));
     let (plutus_script, script_hash_1) = fake_plutus_script_and_hash(5);
     let script_hash_2 = native_script.hash();
     let tx_input_ref1 = fake_tx_input(2);
@@ -375,11 +424,8 @@ fn wrong_witness_type_ref_error() {
     );
     let plutus_script_source_2 = PlutusScriptSource::new(&plutus_script);
 
-    let native_script_source_1 = NativeScriptSource::new_ref_input(
-        &script_hash_2,
-        &tx_input_ref2,
-        0,
-    );
+    let native_script_source_1 =
+        NativeScriptSource::new_ref_input(&script_hash_2, &tx_input_ref2, 0);
     let native_script_source_2 = NativeScriptSource::new(&native_script);
 
     let mint_witness_plutus_1 = MintWitness::new_plutus_script(&plutus_script_source_1, &redeemer);
@@ -388,16 +434,32 @@ fn wrong_witness_type_ref_error() {
     let mint_witness_native_1 = MintWitness::new_native_script(&native_script_source_1);
     let mint_witness_native_2 = MintWitness::new_native_script(&native_script_source_2);
 
-    let res1 = mint_builder.add_asset(&mint_witness_plutus_1, &asset_name1, &Int::new(&BigNum::from(100u64)));
+    let res1 = mint_builder.add_asset(
+        &mint_witness_plutus_1,
+        &asset_name1,
+        &Int::new(&BigNum::from(100u64)),
+    );
     assert!(res1.is_ok());
 
-    let res2 = mint_builder.add_asset(&mint_witness_plutus_2, &asset_name2, &Int::new(&BigNum::from(101u64)));
+    let res2 = mint_builder.add_asset(
+        &mint_witness_plutus_2,
+        &asset_name2,
+        &Int::new(&BigNum::from(101u64)),
+    );
     assert!(res2.is_err());
 
-    let res3 = mint_builder.add_asset(&mint_witness_native_1, &asset_name3, &Int::new(&BigNum::from(102u64)));
+    let res3 = mint_builder.add_asset(
+        &mint_witness_native_1,
+        &asset_name3,
+        &Int::new(&BigNum::from(102u64)),
+    );
     assert!(res3.is_ok());
 
-    let res4= mint_builder.add_asset(&mint_witness_native_2, &asset_name4, &Int::new(&BigNum::from(103u64)));
+    let res4 = mint_builder.add_asset(
+        &mint_witness_native_2,
+        &asset_name4,
+        &Int::new(&BigNum::from(103u64)),
+    );
     assert!(res4.is_err());
 
     let mint = mint_builder.build().expect("Failed to build mint");
@@ -421,9 +483,8 @@ fn wrong_witness_type_ref_error() {
 
 #[test]
 fn wrong_witness_type_no_ref_error() {
-    let native_script = NativeScript::new_timelock_start(
-        &TimelockStart::new_timelockstart(&BigNum::from(100u64)),
-    );
+    let native_script =
+        NativeScript::new_timelock_start(&TimelockStart::new_timelockstart(&BigNum::from(100u64)));
     let (plutus_script, script_hash_1) = fake_plutus_script_and_hash(5);
     let script_hash_2 = native_script.hash();
     let tx_input_ref1 = fake_tx_input(2);
@@ -445,11 +506,8 @@ fn wrong_witness_type_no_ref_error() {
     );
     let plutus_script_source_2 = PlutusScriptSource::new(&plutus_script);
 
-    let native_script_source_1 = NativeScriptSource::new_ref_input(
-        &script_hash_2,
-        &tx_input_ref2,
-        0,
-    );
+    let native_script_source_1 =
+        NativeScriptSource::new_ref_input(&script_hash_2, &tx_input_ref2, 0);
     let native_script_source_2 = NativeScriptSource::new(&native_script);
 
     let mint_witness_plutus_1 = MintWitness::new_plutus_script(&plutus_script_source_2, &redeemer);
@@ -458,16 +516,32 @@ fn wrong_witness_type_no_ref_error() {
     let mint_witness_native_1 = MintWitness::new_native_script(&native_script_source_2);
     let mint_witness_native_2 = MintWitness::new_native_script(&native_script_source_1);
 
-    let res1 = mint_builder.add_asset(&mint_witness_plutus_1, &asset_name1, &Int::new(&BigNum::from(100u64)));
+    let res1 = mint_builder.add_asset(
+        &mint_witness_plutus_1,
+        &asset_name1,
+        &Int::new(&BigNum::from(100u64)),
+    );
     assert!(res1.is_ok());
 
-    let res2 = mint_builder.add_asset(&mint_witness_plutus_2, &asset_name2, &Int::new(&BigNum::from(101u64)));
+    let res2 = mint_builder.add_asset(
+        &mint_witness_plutus_2,
+        &asset_name2,
+        &Int::new(&BigNum::from(101u64)),
+    );
     assert!(res2.is_err());
 
-    let res3 = mint_builder.add_asset(&mint_witness_native_1, &asset_name3, &Int::new(&BigNum::from(102u64)));
+    let res3 = mint_builder.add_asset(
+        &mint_witness_native_1,
+        &asset_name3,
+        &Int::new(&BigNum::from(102u64)),
+    );
     assert!(res3.is_ok());
 
-    let res4= mint_builder.add_asset(&mint_witness_native_2, &asset_name4, &Int::new(&BigNum::from(103u64)));
+    let res4 = mint_builder.add_asset(
+        &mint_witness_native_2,
+        &asset_name4,
+        &Int::new(&BigNum::from(103u64)),
+    );
     assert!(res4.is_err());
 
     let mint = mint_builder.build().expect("Failed to build mint");
@@ -491,18 +565,20 @@ fn wrong_witness_type_no_ref_error() {
 
 #[test]
 fn zero_mint_error() {
-    let native_script = NativeScript::new_timelock_start(
-        &TimelockStart::new_timelockstart(&BigNum::from(100u64)),
-    );
+    let native_script =
+        NativeScript::new_timelock_start(&TimelockStart::new_timelockstart(&BigNum::from(100u64)));
     let asset_name1 = AssetName::from_hex("44544e4654").unwrap();
     let mut mint_builder = MintBuilder::new();
 
     let native_script_source = NativeScriptSource::new(&native_script);
 
-
     let mint_witness_native = MintWitness::new_native_script(&native_script_source);
 
-    let res= mint_builder.add_asset(&mint_witness_native, &asset_name1, &Int::new(&BigNum::from(0u64)));
+    let res = mint_builder.add_asset(
+        &mint_witness_native,
+        &asset_name1,
+        &Int::new(&BigNum::from(0u64)),
+    );
     assert!(res.is_err());
 }
 
@@ -534,46 +610,90 @@ fn redeemer_tag_index_test() {
         &script_hash_1,
         &tx_input_ref1,
         &Language::new_plutus_v2(),
-        0
+        0,
     );
     let plutus_script_source2 = PlutusScriptSource::new_ref_input(
         &script_hash_2,
         &tx_input_ref2,
         &Language::new_plutus_v2(),
-        0
+        0,
     );
 
     let plutus_script_source3 = PlutusScriptSource::new_ref_input(
         &script_hash_3,
         &tx_input_ref3,
         &Language::new_plutus_v2(),
-        0
+        0,
     );
 
     let mint_witnes1 = MintWitness::new_plutus_script(&plutus_script_source1, &redeemer1);
     let mint_witnes2 = MintWitness::new_plutus_script(&plutus_script_source2, &redeemer2);
     let mint_witnes3 = MintWitness::new_plutus_script(&plutus_script_source3, &redeemer3);
 
-    mint_builder.add_asset(&mint_witnes1, &asset_name1, &Int::new(&BigNum::from(100u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes2, &asset_name2, &Int::new(&BigNum::from(101u64))).unwrap();
-    mint_builder.add_asset(&mint_witnes3, &asset_name3, &Int::new(&BigNum::from(102u64))).unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes1,
+            &asset_name1,
+            &Int::new(&BigNum::from(100u64)),
+        )
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes2,
+            &asset_name2,
+            &Int::new(&BigNum::from(101u64)),
+        )
+        .unwrap();
+    mint_builder
+        .add_asset(
+            &mint_witnes3,
+            &asset_name3,
+            &Int::new(&BigNum::from(102u64)),
+        )
+        .unwrap();
 
     let mint = mint_builder.build().expect("Failed to build mint");
     assert_eq!(mint.len(), 3);
 
     let policy_ids = mint.keys();
 
-    let first_index = policy_ids.0.iter().position(|x| *x == script_hash_1).unwrap();
-    let second_index = policy_ids.0.iter().position(|x| *x == script_hash_2).unwrap();
-    let third_index = policy_ids.0.iter().position(|x| *x == script_hash_3).unwrap();
+    let first_index = policy_ids
+        .0
+        .iter()
+        .position(|x| *x == script_hash_1)
+        .unwrap();
+    let second_index = policy_ids
+        .0
+        .iter()
+        .position(|x| *x == script_hash_2)
+        .unwrap();
+    let third_index = policy_ids
+        .0
+        .iter()
+        .position(|x| *x == script_hash_3)
+        .unwrap();
 
     let plutus_witnesses = mint_builder.get_plutus_witnesses();
-    let redeemers = mint_builder.get_redeemers().expect("Failed to get redeemers");
+    let redeemers = mint_builder
+        .get_redeemers()
+        .expect("Failed to get redeemers");
     assert_eq!(plutus_witnesses.len(), 3);
 
-    let first_redeemer = redeemers.redeemers.iter().find(|x| x.data == data_1).unwrap();
-    let second_redeemer = redeemers.redeemers.iter().find(|x| x.data == data_2).unwrap();
-    let third_redeemer = redeemers.redeemers.iter().find(|x| x.data == data_3).unwrap();
+    let first_redeemer = redeemers
+        .redeemers
+        .iter()
+        .find(|x| x.data == data_1)
+        .unwrap();
+    let second_redeemer = redeemers
+        .redeemers
+        .iter()
+        .find(|x| x.data == data_2)
+        .unwrap();
+    let third_redeemer = redeemers
+        .redeemers
+        .iter()
+        .find(|x| x.data == data_3)
+        .unwrap();
 
     assert_eq!(first_redeemer.tag(), RedeemerTag::new_mint());
     assert_eq!(second_redeemer.tag(), RedeemerTag::new_mint());

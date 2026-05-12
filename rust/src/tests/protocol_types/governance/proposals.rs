@@ -1,4 +1,7 @@
-use crate::tests::fakes::{fake_full_protocol_param_update, fake_action_id, fake_anchor, fake_key_hash, fake_reward_address, fake_script_hash};
+use crate::tests::fakes::{
+    fake_action_id, fake_anchor, fake_full_protocol_param_update, fake_key_hash,
+    fake_reward_address, fake_script_hash,
+};
 use crate::*;
 use itertools::Itertools;
 

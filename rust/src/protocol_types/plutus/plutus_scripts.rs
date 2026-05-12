@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use itertools::Itertools;
 use crate::*;
+use itertools::Itertools;
+use std::collections::HashMap;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug, Default)]
@@ -14,7 +14,10 @@ impl_vec_wrapper!(PlutusScripts, PlutusScript, scripts);
 
 impl From<Vec<PlutusScript>> for PlutusScripts {
     fn from(scripts: Vec<PlutusScript>) -> Self {
-        Self { scripts, cbor_set_type: None }
+        Self {
+            scripts,
+            cbor_set_type: None,
+        }
     }
 }
 
@@ -27,10 +30,7 @@ impl PlutusScripts {
         }
     }
 
-    pub(crate) fn from_vec(
-        scripts: Vec<PlutusScript>,
-        cbor_set_type: Option<CborSetType>,
-    ) -> Self {
+    pub(crate) fn from_vec(scripts: Vec<PlutusScript>, cbor_set_type: Option<CborSetType>) -> Self {
         Self {
             scripts,
             cbor_set_type: cbor_set_type.map(|t| {
@@ -63,7 +63,10 @@ impl PlutusScripts {
                 .filter(|s| s.language_version().eq(language))
                 .map(|s| s.clone())
                 .collect(),
-            self.cbor_set_type.as_ref().map(|x| x.get(language).cloned()).flatten(),
+            self.cbor_set_type
+                .as_ref()
+                .map(|x| x.get(language).cloned())
+                .flatten(),
         )
     }
 
@@ -132,7 +135,10 @@ impl PlutusScripts {
     }
 
     pub(crate) fn get_set_type(&self, language: &Language) -> Option<CborSetType> {
-        self.cbor_set_type.as_ref().map(|m| m.get(language).cloned()).flatten()
+        self.cbor_set_type
+            .as_ref()
+            .map(|m| m.get(language).cloned())
+            .flatten()
     }
 
     pub(crate) fn set_set_type(&mut self, cbor_set_type: CborSetType, language: &Language) {
@@ -170,10 +176,7 @@ impl serde::Serialize for PlutusScripts {
     where
         S: serde::Serializer,
     {
-        self.scripts
-            .iter()
-            .collect_vec()
-            .serialize(serializer)
+        self.scripts.iter().collect_vec().serialize(serializer)
     }
 }
 

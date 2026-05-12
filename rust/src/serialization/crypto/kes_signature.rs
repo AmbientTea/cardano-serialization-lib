@@ -1,7 +1,7 @@
+use crate::protocol_types::Deserialize;
+use crate::{DeserializeError, DeserializeFailure, KESSignature};
 use cbor_event::de::Deserializer;
 use cbor_event::se::Serializer;
-use crate::{DeserializeError, DeserializeFailure, KESSignature};
-use crate::protocol_types::Deserialize;
 
 impl cbor_event::se::Serialize for KESSignature {
     fn serialize<'se, W: std::io::Write>(
@@ -24,10 +24,10 @@ impl Deserialize for KESSignature {
                     cbor_event::Len::Len(bytes.len() as u64),
                     "hash length",
                 ))
-                    .into());
+                .into());
             }
             Ok(KESSignature(bytes))
         })()
-            .map_err(|e| e.annotate("KESSignature"))
+        .map_err(|e| e.annotate("KESSignature"))
     }
 }

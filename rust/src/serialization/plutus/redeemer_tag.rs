@@ -29,7 +29,7 @@ impl Deserialize for RedeemerTagKind {
                 Ok(_) | Err(_) => Err(DeserializeFailure::NoVariantMatched.into()),
             }
         })()
-            .map_err(|e| e.annotate("RedeemerTagEnum"))
+        .map_err(|e| e.annotate("RedeemerTagEnum"))
     }
 }
 

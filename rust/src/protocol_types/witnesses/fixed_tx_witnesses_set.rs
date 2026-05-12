@@ -1,7 +1,6 @@
 use crate::*;
 #[allow(dead_code)]
 
-
 /// A set of witnesses for a transaction.
 /// Keeps original bytes to allow for safe roundtrip serialization.
 /// That helps to avoid incorrect script data hash after adding a  vkey or bootstrap witness.
@@ -17,8 +16,10 @@ pub struct FixedTxWitnessesSet {
 
 #[wasm_bindgen]
 impl FixedTxWitnessesSet {
-
-    pub(crate) fn new(mut witnesses_set: TransactionWitnessSet, raw_parts: TransactionWitnessSetRaw) -> Self {
+    pub(crate) fn new(
+        mut witnesses_set: TransactionWitnessSet,
+        raw_parts: TransactionWitnessSetRaw,
+    ) -> Self {
         if let Some(bootstraps) = &mut witnesses_set.bootstraps {
             bootstraps.set_force_original_cbor_set_type(true);
         }
@@ -36,7 +37,7 @@ impl FixedTxWitnessesSet {
         Self {
             tx_witnesses_set: TransactionWitnessSet::new(),
             raw_parts: TransactionWitnessSetRaw::new(),
-            transaction_has_set_tags: true
+            transaction_has_set_tags: true,
         }
     }
 
@@ -84,13 +85,21 @@ impl FixedTxWitnessesSet {
         buf.finalize()
     }
 
-    #[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+    #[cfg(not(all(
+        target_arch = "wasm32",
+        not(target_os = "emscripten"),
+        not(feature = "dont-expose-wasm")
+    )))]
     pub fn from_bytes(data: Vec<u8>) -> Result<FixedTxWitnessesSet, DeserializeError> {
         let mut raw = Deserializer::from(std::io::Cursor::new(data));
         Self::deserialize(&mut raw)
     }
 
-    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm")))]
+    #[cfg(all(
+        target_arch = "wasm32",
+        not(target_os = "emscripten"),
+        not(feature = "dont-expose-wasm")
+    ))]
     pub fn from_bytes(data: Vec<u8>) -> Result<FixedTxWitnessesSet, JsError> {
         let mut raw = Deserializer::from(std::io::Cursor::new(data));
         Ok(Self::deserialize(&mut raw)?)

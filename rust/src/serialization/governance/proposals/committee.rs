@@ -14,7 +14,10 @@ impl Serialize for Committee {
 }
 
 impl SerializeEmbeddedGroup for Committee {
-    fn serialize_as_embedded_group<'a, W: Write + Sized>(&self, serializer: &'a mut Serializer<W>) -> cbor_event::Result<&'a mut Serializer<W>> {
+    fn serialize_as_embedded_group<'a, W: Write + Sized>(
+        &self,
+        serializer: &'a mut Serializer<W>,
+    ) -> cbor_event::Result<&'a mut Serializer<W>> {
         serializer.write_map(cbor_event::Len::Len(self.members.len() as u64))?;
         for (key, value) in &self.members {
             key.serialize(serializer)?;

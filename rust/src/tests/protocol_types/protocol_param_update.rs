@@ -126,7 +126,10 @@ fn ppu_setters_getters_test() {
         &UnitInterval::new(&BigNum::from(50u32), &BigNum::from(51u32)),
     );
     ppu.set_pool_voting_thresholds(&pool_voting_thresholds);
-    assert_eq!(ppu.pool_voting_thresholds().unwrap(), pool_voting_thresholds);
+    assert_eq!(
+        ppu.pool_voting_thresholds().unwrap(),
+        pool_voting_thresholds
+    );
 
     assert!(ppu.drep_voting_thresholds().is_none());
     let drep_voting_thresholds = DRepVotingThresholds::new(
@@ -142,7 +145,10 @@ fn ppu_setters_getters_test() {
         &UnitInterval::new(&BigNum::from(80u32), &BigNum::from(81u32)),
     );
     ppu.set_drep_voting_thresholds(&drep_voting_thresholds);
-    assert_eq!(ppu.drep_voting_thresholds().unwrap(), drep_voting_thresholds);
+    assert_eq!(
+        ppu.drep_voting_thresholds().unwrap(),
+        drep_voting_thresholds
+    );
 
     assert!(ppu.min_committee_size().is_none());
     let min_committee_size = 32;
@@ -157,12 +163,18 @@ fn ppu_setters_getters_test() {
     assert!(ppu.governance_action_validity_period().is_none());
     let governance_action_validity_period = 34;
     ppu.set_governance_action_validity_period(governance_action_validity_period);
-    assert_eq!(ppu.governance_action_validity_period().unwrap(), governance_action_validity_period);
+    assert_eq!(
+        ppu.governance_action_validity_period().unwrap(),
+        governance_action_validity_period
+    );
 
     assert!(ppu.governance_action_deposit().is_none());
     let governance_action_deposit = Coin::from(35u32);
     ppu.set_governance_action_deposit(&governance_action_deposit);
-    assert_eq!(ppu.governance_action_deposit().unwrap(), governance_action_deposit);
+    assert_eq!(
+        ppu.governance_action_deposit().unwrap(),
+        governance_action_deposit
+    );
 
     assert!(ppu.drep_deposit().is_none());
     let drep_deposit = Coin::from(36u32);
@@ -172,12 +184,18 @@ fn ppu_setters_getters_test() {
     assert!(ppu.drep_inactivity_period().is_none());
     let drep_inactivity_period = 37;
     ppu.set_drep_inactivity_period(drep_inactivity_period);
-    assert_eq!(ppu.drep_inactivity_period().unwrap(), drep_inactivity_period);
+    assert_eq!(
+        ppu.drep_inactivity_period().unwrap(),
+        drep_inactivity_period
+    );
 
     assert!(ppu.ref_script_coins_per_byte().is_none());
     let ref_script_coins_per_byte = UnitInterval::new(&BigNum::from(38u32), &BigNum::from(39u32));
     ppu.set_ref_script_coins_per_byte(&ref_script_coins_per_byte);
-    assert_eq!(ppu.ref_script_coins_per_byte().unwrap(), ref_script_coins_per_byte);
+    assert_eq!(
+        ppu.ref_script_coins_per_byte().unwrap(),
+        ref_script_coins_per_byte
+    );
 
     //since it is deprecated
     assert!(ppu.d().is_none());
@@ -206,7 +224,10 @@ fn pool_voting_thresholds_test() {
     assert_eq!(pvt.committee_normal(), committee_normal);
     assert_eq!(pvt.committee_no_confidence(), committee_no_confidence);
     assert_eq!(pvt.hard_fork_initiation(), hard_fork_initiation);
-    assert_eq!(pvt.security_relevant_threshold(), security_relevant_threshold);
+    assert_eq!(
+        pvt.security_relevant_threshold(),
+        security_relevant_threshold
+    );
 }
 
 #[test]

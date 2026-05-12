@@ -1,5 +1,8 @@
+use crate::tests::fakes::{
+    fake_genesis_delegate_hash, fake_genesis_hash, fake_key_hash, fake_pool_metadata_hash,
+    fake_vrf_key_hash,
+};
 use crate::*;
-use crate::tests::fakes::{fake_genesis_delegate_hash, fake_genesis_hash, fake_key_hash, fake_pool_metadata_hash, fake_vrf_key_hash};
 
 #[test]
 fn certificates_builder_deposit_no_refund_test() {
@@ -155,7 +158,8 @@ fn certificates_builder_deposit_no_refund_test() {
 
     let refund = builder
         .get_certificates_refund(&Coin::from(pool_deposit), &Coin::from(key_deposit))
-        .unwrap().coin;
+        .unwrap()
+        .coin;
 
     let expected_refund = Coin::zero();
 
@@ -262,7 +266,8 @@ fn certificates_builder_refund_no_deposit_test() {
 
     let refund = builder
         .get_certificates_refund(&Coin::from(pool_deposit), &Coin::from(key_deposit))
-        .unwrap().coin;
+        .unwrap()
+        .coin;
     let expected_refund = Coin::from(key_deposit + key_deposit_form_args + drep_reg_deposit);
 
     assert_eq!(builder_deposit, expected_deposit);

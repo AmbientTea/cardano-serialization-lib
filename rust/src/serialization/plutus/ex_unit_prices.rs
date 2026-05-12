@@ -36,6 +36,6 @@ impl Deserialize for ExUnitPrices {
                 step_price,
             })
         })()
-            .map_err(|e| e.annotate("ExUnitPrices"))
+        .map_err(|e| e.annotate("ExUnitPrices"))
     }
 }

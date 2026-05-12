@@ -1,6 +1,6 @@
+use crate::serialization::utils::is_break_tag;
 use crate::*;
 use std::collections::BTreeMap;
-use crate::serialization::utils::is_break_tag;
 
 impl cbor_event::se::Serialize for VotingProcedures {
     fn serialize<'se, W: Write>(

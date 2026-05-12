@@ -17,7 +17,7 @@ impl Serialize for Certificates {
 
 impl Deserialize for Certificates {
     fn deserialize<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<Self, DeserializeError> {
-        let has_set_tag= skip_set_tag(raw)?;
+        let has_set_tag = skip_set_tag(raw)?;
         let mut arr = Vec::new();
         (|| -> Result<_, DeserializeError> {
             let len = raw.array()?;

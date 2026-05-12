@@ -1,5 +1,5 @@
-use crate::*;
 use crate::chain_crypto as crypto;
+use crate::*;
 
 #[wasm_bindgen]
 pub struct LegacyDaedalusPrivateKey(pub(crate) crypto::SecretKey<crypto::LegacyDaedalus>);

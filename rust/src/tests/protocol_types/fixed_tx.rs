@@ -1,7 +1,7 @@
-use crate::*;
-use hex;
 use crate::fakes::fake_bootstrap_witness;
 use crate::tests::fakes::fake_vkey_witness;
+use crate::*;
+use hex;
 
 #[test]
 fn simple_round_trip() {
@@ -76,8 +76,12 @@ fn round_trip_nonstandart_body() {
 #[test]
 fn fixed_tx_add_signature() {
     let mut tx = FixedTransaction::from_hex("84a7009F8258208b9c96823c19f2047f32210a330434b3d163e194ea17b2b702c0667f6fea7a7a00FF0d80018182581d6138fe1dd1d91221a199ff0dacf41fdd5b87506b533d00e70fae8dae8f1abfbac06a021a0002b645031a03962de305a1581de1b3cabd3914ef99169ace1e8b545b635f809caa35f8b6c8bc69ae48061abf4009040e80a100828258207dc05ac55cdfb9cc24571d491d3a3bdbd7d48489a916d27fce3ffe5c9af1b7f55840d7eda8457f1814fe3333b7b1916e3b034e6d480f97f4f286b1443ef72383279718a3a3fddf127dae0505b01a48fd9ffe0f52d9d8c46d02bcb85d1d106c13aa048258201b3d6e1236891a921abf1a3f90a9fb1b2568b1096b6cd6d3eaaeb0ef0ee0802f58401ce4658303c3eb0f2b9705992ccd62de30423ade90219e2c4cfc9eb488c892ea28ba3110f0c062298447f4f6365499d97d31207075f9815c3fe530bd9a927402f5f6").unwrap();
-    let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32().unwrap().to_raw_key();
-    let private_key_2 = Bip32PrivateKey::generate_ed25519_bip32().unwrap().to_raw_key();
+    let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32()
+        .unwrap()
+        .to_raw_key();
+    let private_key_2 = Bip32PrivateKey::generate_ed25519_bip32()
+        .unwrap()
+        .to_raw_key();
 
     assert_eq!(tx.witness_set().vkeys().unwrap().len(), 2);
 
@@ -96,22 +100,34 @@ fn fixed_tx_add_signature() {
     assert!(vkey_witnesses.contains(&vkey_witness_2));
 }
 
-
 #[test]
 fn fixed_tx_add_daedalus_boostrap_signature() {
     let mut tx = FixedTransaction::from_hex("84a7009F8258208b9c96823c19f2047f32210a330434b3d163e194ea17b2b702c0667f6fea7a7a00FF0d80018182581d6138fe1dd1d91221a199ff0dacf41fdd5b87506b533d00e70fae8dae8f1abfbac06a021a0002b645031a03962de305a1581de1b3cabd3914ef99169ace1e8b545b635f809caa35f8b6c8bc69ae48061abf4009040e80a100828258207dc05ac55cdfb9cc24571d491d3a3bdbd7d48489a916d27fce3ffe5c9af1b7f55840d7eda8457f1814fe3333b7b1916e3b034e6d480f97f4f286b1443ef72383279718a3a3fddf127dae0505b01a48fd9ffe0f52d9d8c46d02bcb85d1d106c13aa048258201b3d6e1236891a921abf1a3f90a9fb1b2568b1096b6cd6d3eaaeb0ef0ee0802f58401ce4658303c3eb0f2b9705992ccd62de30423ade90219e2c4cfc9eb488c892ea28ba3110f0c062298447f4f6365499d97d31207075f9815c3fe530bd9a927402f5f6").unwrap();
     let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32().unwrap();
     let private_key_2 = Bip32PrivateKey::generate_ed25519_bip32().unwrap();
-    let legacy_private_key_1 = LegacyDaedalusPrivateKey::from_bytes(&private_key_1.as_bytes()).unwrap();
-    let legacy_private_key_2 = LegacyDaedalusPrivateKey::from_bytes(&private_key_2.as_bytes()).unwrap();
-    let addr = ByronAddress::from_base58("Ae2tdPwUPEZ6r6zbg4ibhFrNnyKHg7SYuPSfDpjKxgvwFX9LquRep7gj7FQ").unwrap();
+    let legacy_private_key_1 =
+        LegacyDaedalusPrivateKey::from_bytes(&private_key_1.as_bytes()).unwrap();
+    let legacy_private_key_2 =
+        LegacyDaedalusPrivateKey::from_bytes(&private_key_2.as_bytes()).unwrap();
+    let addr =
+        ByronAddress::from_base58("Ae2tdPwUPEZ6r6zbg4ibhFrNnyKHg7SYuPSfDpjKxgvwFX9LquRep7gj7FQ")
+            .unwrap();
 
-    assert_eq!(tx.witness_set().bootstraps().unwrap_or_else(|| BootstrapWitnesses::new()).len(), 0);
+    assert_eq!(
+        tx.witness_set()
+            .bootstraps()
+            .unwrap_or_else(|| BootstrapWitnesses::new())
+            .len(),
+        0
+    );
 
-    let boostrap_witness_1 = make_daedalus_bootstrap_witness(&tx.transaction_hash(), &addr, &legacy_private_key_1);
-    let boostrap_witness_2 = make_daedalus_bootstrap_witness(&tx.transaction_hash(), &addr, &legacy_private_key_2);
+    let boostrap_witness_1 =
+        make_daedalus_bootstrap_witness(&tx.transaction_hash(), &addr, &legacy_private_key_1);
+    let boostrap_witness_2 =
+        make_daedalus_bootstrap_witness(&tx.transaction_hash(), &addr, &legacy_private_key_2);
     tx.add_bootstrap_witness(&boostrap_witness_1);
-    tx.sign_and_add_daedalus_bootstrap_signature(&addr, &legacy_private_key_2).unwrap();
+    tx.sign_and_add_daedalus_bootstrap_signature(&addr, &legacy_private_key_2)
+        .unwrap();
 
     let tx2 = FixedTransaction::from_bytes(tx.to_bytes()).unwrap();
     assert_eq!(&tx.body(), &tx2.body());
@@ -123,20 +139,30 @@ fn fixed_tx_add_daedalus_boostrap_signature() {
     assert!(boostraps.contains(&boostrap_witness_2));
 }
 
-
 #[test]
 fn fixed_tx_add_icarus_boostrap_signature() {
     let mut tx = FixedTransaction::from_hex("84a7009F8258208b9c96823c19f2047f32210a330434b3d163e194ea17b2b702c0667f6fea7a7a00FF0d80018182581d6138fe1dd1d91221a199ff0dacf41fdd5b87506b533d00e70fae8dae8f1abfbac06a021a0002b645031a03962de305a1581de1b3cabd3914ef99169ace1e8b545b635f809caa35f8b6c8bc69ae48061abf4009040e80a100828258207dc05ac55cdfb9cc24571d491d3a3bdbd7d48489a916d27fce3ffe5c9af1b7f55840d7eda8457f1814fe3333b7b1916e3b034e6d480f97f4f286b1443ef72383279718a3a3fddf127dae0505b01a48fd9ffe0f52d9d8c46d02bcb85d1d106c13aa048258201b3d6e1236891a921abf1a3f90a9fb1b2568b1096b6cd6d3eaaeb0ef0ee0802f58401ce4658303c3eb0f2b9705992ccd62de30423ade90219e2c4cfc9eb488c892ea28ba3110f0c062298447f4f6365499d97d31207075f9815c3fe530bd9a927402f5f6").unwrap();
     let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32().unwrap();
     let private_key_2 = Bip32PrivateKey::generate_ed25519_bip32().unwrap();
-    let addr = ByronAddress::from_base58("Ae2tdPwUPEZ6r6zbg4ibhFrNnyKHg7SYuPSfDpjKxgvwFX9LquRep7gj7FQ").unwrap();
+    let addr =
+        ByronAddress::from_base58("Ae2tdPwUPEZ6r6zbg4ibhFrNnyKHg7SYuPSfDpjKxgvwFX9LquRep7gj7FQ")
+            .unwrap();
 
-    assert_eq!(tx.witness_set().bootstraps().unwrap_or_else(|| BootstrapWitnesses::new()).len(), 0);
+    assert_eq!(
+        tx.witness_set()
+            .bootstraps()
+            .unwrap_or_else(|| BootstrapWitnesses::new())
+            .len(),
+        0
+    );
 
-    let boostrap_witness_1 = make_icarus_bootstrap_witness(&tx.transaction_hash(), &addr, &private_key_1);
-    let boostrap_witness_2 = make_icarus_bootstrap_witness(&tx.transaction_hash(), &addr, &private_key_2);
+    let boostrap_witness_1 =
+        make_icarus_bootstrap_witness(&tx.transaction_hash(), &addr, &private_key_1);
+    let boostrap_witness_2 =
+        make_icarus_bootstrap_witness(&tx.transaction_hash(), &addr, &private_key_2);
     tx.add_bootstrap_witness(&boostrap_witness_1);
-    tx.sign_and_add_icarus_bootstrap_signature(&addr, &private_key_2).unwrap();
+    tx.sign_and_add_icarus_bootstrap_signature(&addr, &private_key_2)
+        .unwrap();
 
     let tx2 = FixedTransaction::from_bytes(tx.to_bytes()).unwrap();
     assert_eq!(&tx.body(), &tx2.body());
@@ -160,9 +186,13 @@ fn fixed_transaction_with_plutus_witnesses() {
 
     assert_eq!(fixed_tx.witness_set().vkeys().unwrap().len(), 1);
 
-    let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32().unwrap().to_raw_key();
+    let private_key_1 = Bip32PrivateKey::generate_ed25519_bip32()
+        .unwrap()
+        .to_raw_key();
     let vkey_witness_1 = make_vkey_witness(&fixed_tx.transaction_hash(), &private_key_1);
-    fixed_tx.sign_and_add_vkey_signature(&private_key_1).unwrap();
+    fixed_tx
+        .sign_and_add_vkey_signature(&private_key_1)
+        .unwrap();
 
     assert_eq!(fixed_tx.witness_set().vkeys().unwrap().len(), 2);
 
@@ -170,16 +200,24 @@ fn fixed_transaction_with_plutus_witnesses() {
     assert_eq!(fixed_tx_roundtrip.body(), fixed_tx.body());
     assert_eq!(fixed_tx_roundtrip.witness_set(), fixed_tx.witness_set());
 
-    assert!(fixed_tx_roundtrip.witness_set().vkeys().unwrap().contains(&vkey_witness_1));
-    assert_eq!(fixed_tx.transaction_hash(), fixed_tx_roundtrip.transaction_hash());
+    assert!(fixed_tx_roundtrip
+        .witness_set()
+        .vkeys()
+        .unwrap()
+        .contains(&vkey_witness_1));
+    assert_eq!(
+        fixed_tx.transaction_hash(),
+        fixed_tx_roundtrip.transaction_hash()
+    );
 }
 
 #[test]
 fn add_witnesses_to_tagged_tx() {
     let hex = "84a400d90102818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa0f5f6";
     let vkey_witness = fake_vkey_witness(1);
-    let byron_address = ByronAddress::from_base58("Ae2tdPwUPEZ5uzkzh1o2DHECiUi3iugvnnKHRisPgRRP3CTF4KCMvy54Xd3")
-        .unwrap();
+    let byron_address =
+        ByronAddress::from_base58("Ae2tdPwUPEZ5uzkzh1o2DHECiUi3iugvnnKHRisPgRRP3CTF4KCMvy54Xd3")
+            .unwrap();
     let bootstrap_witness = fake_bootstrap_witness(1, &byron_address);
     let mut fixed_tx = FixedTransaction::from_hex(hex).unwrap();
     fixed_tx.add_bootstrap_witness(&bootstrap_witness);
@@ -203,8 +241,9 @@ fn add_witnesses_to_tagged_tx() {
 fn add_witnesses_to_untagged_tx() {
     let hex = "84a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa0f5f6";
     let vkey_witness = fake_vkey_witness(1);
-    let byron_address = ByronAddress::from_base58("Ae2tdPwUPEZ5uzkzh1o2DHECiUi3iugvnnKHRisPgRRP3CTF4KCMvy54Xd3")
-        .unwrap();
+    let byron_address =
+        ByronAddress::from_base58("Ae2tdPwUPEZ5uzkzh1o2DHECiUi3iugvnnKHRisPgRRP3CTF4KCMvy54Xd3")
+            .unwrap();
     let bootstrap_witness = fake_bootstrap_witness(1, &byron_address);
     let mut fixed_tx = FixedTransaction::from_hex(hex).unwrap();
     fixed_tx.add_bootstrap_witness(&bootstrap_witness);

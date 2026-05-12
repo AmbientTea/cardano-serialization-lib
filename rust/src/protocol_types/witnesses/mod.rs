@@ -20,4 +20,3 @@ pub use transaction_witnesses_sets::*;
 
 mod fixed_tx_witnesses_set;
 pub use fixed_tx_witnesses_set::*;
-

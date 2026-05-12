@@ -8,12 +8,24 @@ fn fixed_block_hash_test() {
     let expected_hash = "0f6b0a59809fac077c9b3ece924b6777468d7edcc8b1ba03d89d70a15ccce6df";
     let block = VersionedBlock::from_hex(block_hex).unwrap();
     assert_eq!(expected_hash, hash);
-    assert_eq!(fixed_block.block().transaction_bodies().len(), block.block().transaction_bodies().len());
-    assert_eq!(fixed_block.block().transaction_witness_sets(), block.block().transaction_witness_sets());
-    assert_eq!(fixed_block.block().auxiliary_data_set(), block.block().auxiliary_data_set());
-    assert_eq!(fixed_block.block().invalid_transactions(), block.block().invalid_transactions());
+    assert_eq!(
+        fixed_block.block().transaction_bodies().len(),
+        block.block().transaction_bodies().len()
+    );
+    assert_eq!(
+        fixed_block.block().transaction_witness_sets(),
+        block.block().transaction_witness_sets()
+    );
+    assert_eq!(
+        fixed_block.block().auxiliary_data_set(),
+        block.block().auxiliary_data_set()
+    );
+    assert_eq!(
+        fixed_block.block().invalid_transactions(),
+        block.block().invalid_transactions()
+    );
     assert_eq!(fixed_block.block().header(), block.block().header());
-    let fixed_transaction_bodies =  fixed_block.block().transaction_bodies();
+    let fixed_transaction_bodies = fixed_block.block().transaction_bodies();
     let transaction_bodies = block.block().transaction_bodies();
     let bodies_count = fixed_transaction_bodies.len();
     for i in 0..bodies_count {

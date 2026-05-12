@@ -36,6 +36,9 @@ impl DeserializeEmbeddedGroup for CommitteeColdResign {
             Credential::deserialize(raw).map_err(|e| e.annotate("committee_cold_key"))?;
         let anchor = Anchor::deserialize_nullable(raw).map_err(|e| e.annotate("anchor"))?;
 
-        Ok(CommitteeColdResign { committee_cold_credential: committee_cold_key, anchor })
+        Ok(CommitteeColdResign {
+            committee_cold_credential: committee_cold_key,
+            anchor,
+        })
     }
 }

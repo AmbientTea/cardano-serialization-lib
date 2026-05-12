@@ -66,7 +66,6 @@ impl PartialEq<Redeemers> for Redeemers {
     fn eq(&self, other: &Redeemers) -> bool {
         self.redeemers == other.redeemers
     }
-
 }
 
 impl Eq for Redeemers {}

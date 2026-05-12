@@ -1,7 +1,7 @@
-use crate::*;
-use std::io::{Seek, SeekFrom};
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 use hashlink::LinkedHashMap;
+use std::io::{Seek, SeekFrom};
 
 // This file was code-generated using an experimental CDDL to rust tool:
 // https://github.com/Emurgo/cddl-codegen

@@ -23,11 +23,11 @@ impl Rational {
         Rational {
             numerator: n,
             denominator: d,
-        }.reduce_minuses()
+        }
+        .reduce_minuses()
     }
 
-
-    pub (crate) fn one() -> Self {
+    pub(crate) fn one() -> Self {
         Rational {
             numerator: BigInt::one(),
             denominator: BigInt::one(),
@@ -51,11 +51,17 @@ impl Rational {
 
     pub(crate) fn mul_bignum(&self, x: &BigNum) -> Result<Rational, JsError> {
         let m: BigInt = x.into();
-        Ok(Rational::new(self.numerator.mul(&m), self.denominator.clone()))
+        Ok(Rational::new(
+            self.numerator.mul(&m),
+            self.denominator.clone(),
+        ))
     }
 
     pub(crate) fn mul_usize(&self, x: usize) -> Rational {
-        Rational::new(self.numerator.mul(&BigInt::from(x)), self.denominator.clone())
+        Rational::new(
+            self.numerator.mul(&BigInt::from(x)),
+            self.denominator.clone(),
+        )
     }
 
     pub(crate) fn mul_ratio(&self, x: &Rational) -> Rational {
@@ -174,7 +180,7 @@ impl Rational {
         }
     }
 
-    fn reduce_minuses(mut self) -> Self{
+    fn reduce_minuses(mut self) -> Self {
         if self.numerator.is_negative() && self.denominator.is_negative() {
             self.numerator = self.numerator.abs();
             self.denominator = self.denominator.abs();

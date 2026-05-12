@@ -13,7 +13,7 @@ fn test_valid_pointer() {
     let encoded = ptr.to_bytes();
 
     let (result, _offset) = Pointer::from_bytes(&encoded).unwrap();
-    
+
     assert_eq!(result.slot_bignum(), 12345u64.into());
     assert_eq!(result.tx_index_bignum(), 67u64.into());
     assert_eq!(result.cert_index_bignum(), 89u64.into());
@@ -80,7 +80,7 @@ fn test_max_valid_values() {
     let encoded = ptr.to_bytes();
 
     let (result, _offset) = Pointer::from_bytes(&encoded).unwrap();
-    
+
     assert_eq!(result.slot_bignum(), (u32::MAX as u64).into());
     assert_eq!(result.tx_index_bignum(), (u16::MAX as u64).into());
     assert_eq!(result.cert_index_bignum(), (u16::MAX as u64).into());
@@ -93,10 +93,10 @@ fn test_encode_decode_roundtrip() {
         tx_index: 67u64.into(),
         cert_index: 89u64.into(),
     };
-    
+
     let encoded = original.to_bytes();
     let (decoded, _offset) = Pointer::from_bytes(&encoded).unwrap();
-    
+
     assert_eq!(original.slot_bignum(), decoded.slot_bignum());
     assert_eq!(original.tx_index_bignum(), decoded.tx_index_bignum());
     assert_eq!(original.cert_index_bignum(), decoded.cert_index_bignum());
@@ -123,15 +123,24 @@ fn test_variable_length_decoding() {
 
     let data = [0x7Fu8];
     let mut cursor = Cursor::new(&data[..]);
-    assert_eq!(decode_variable_length_u64(&mut cursor, "test").unwrap(), 127);
+    assert_eq!(
+        decode_variable_length_u64(&mut cursor, "test").unwrap(),
+        127
+    );
 
     let data = [0x81u8, 0x00];
     let mut cursor = Cursor::new(&data[..]);
-    assert_eq!(decode_variable_length_u64(&mut cursor, "test").unwrap(), 128);
+    assert_eq!(
+        decode_variable_length_u64(&mut cursor, "test").unwrap(),
+        128
+    );
 
     let data = [0x81u8, 0x7F];
     let mut cursor = Cursor::new(&data[..]);
-    assert_eq!(decode_variable_length_u64(&mut cursor, "test").unwrap(), 255);
+    assert_eq!(
+        decode_variable_length_u64(&mut cursor, "test").unwrap(),
+        255
+    );
 }
 
 #[test]
@@ -139,7 +148,7 @@ fn test_insufficient_data_error() {
     let incomplete_data = vec![0x80]; // Missing terminating byte
     let result = Pointer::from_bytes(&incomplete_data);
     assert!(result.is_err());
-    
+
     let empty_data = vec![];
     let result = Pointer::from_bytes(&empty_data);
     assert!(result.is_err());

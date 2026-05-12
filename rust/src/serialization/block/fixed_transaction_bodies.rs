@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl Deserialize for FixedTransactionBodies {
     fn deserialize<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<Self, DeserializeError> {
@@ -17,7 +17,7 @@ impl Deserialize for FixedTransactionBodies {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("FixedTransactionBodies"))?;
+        .map_err(|e| e.annotate("FixedTransactionBodies"))?;
         Ok(Self(arr))
     }
 }

@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl cbor_event::se::Serialize for CostModel {
     fn serialize<'se, W: Write>(
@@ -30,7 +30,7 @@ impl Deserialize for CostModel {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("CostModel"))?;
+        .map_err(|e| e.annotate("CostModel"))?;
         Ok(Self(arr.try_into().unwrap()))
     }
 }

@@ -139,13 +139,7 @@ impl_vec_wrapper!(TransactionUnspentOutputs, TransactionUnspentOutput);
 
 #[wasm_bindgen]
 #[derive(
-    Clone,
-    Debug,
-    Default,
-    /*Hash,*/ Ord,
-    serde::Serialize,
-    serde::Deserialize,
-    JsonSchema,
+    Clone, Debug, Default, /*Hash,*/ Ord, serde::Serialize, serde::Deserialize, JsonSchema,
 )]
 pub struct Value {
     pub(crate) coin: Coin,
@@ -222,19 +216,20 @@ impl Value {
         Self::from(amount.into())
     }
 
-    pub fn with_asset(
-        self,
-        policy: PolicyID,
-        name: AssetName,
-        amount: BigNum,
-    ) -> Self {
-        let multiasset = self.multiasset.unwrap_or_default().with_asset(policy, name, amount);
+    pub fn with_asset(self, policy: PolicyID, name: AssetName, amount: BigNum) -> Self {
+        let multiasset = self
+            .multiasset
+            .unwrap_or_default()
+            .with_asset(policy, name, amount);
         let multiasset = (!multiasset.is_zero()).then_some(multiasset);
         Self { multiasset, ..self }
     }
 
     pub fn with_assets(self, policy: PolicyID, assets: Assets) -> Self {
-        let multiasset = self.multiasset.unwrap_or_default().with_assets(policy, assets);
+        let multiasset = self
+            .multiasset
+            .unwrap_or_default()
+            .with_assets(policy, assets);
         let multiasset = (!multiasset.is_zero()).then_some(multiasset);
         Self { multiasset, ..self }
     }
@@ -250,23 +245,35 @@ impl Value {
 }
 
 impl From<MultiAsset> for Value {
-   fn from(ma: MultiAsset) -> Self {
-       Self { coin: Coin::zero(), multiasset: (ma.len() > 0).then_some(ma) }
-
-   }
+    fn from(ma: MultiAsset) -> Self {
+        Self {
+            coin: Coin::zero(),
+            multiasset: (ma.len() > 0).then_some(ma),
+        }
+    }
 }
 
 impl From<Coin> for Value {
     fn from(coin: Coin) -> Self {
-       Self { coin, multiasset: None }
-
-   }
+        Self {
+            coin,
+            multiasset: None,
+        }
+    }
 }
 
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
-        let self_ma = self.multiasset.as_ref().map(|ma| ma.reduce_empty_to_none()).flatten();
-        let other_ma = other.multiasset.as_ref().map(|ma| ma.reduce_empty_to_none()).flatten();
+        let self_ma = self
+            .multiasset
+            .as_ref()
+            .map(|ma| ma.reduce_empty_to_none())
+            .flatten();
+        let other_ma = other
+            .multiasset
+            .as_ref()
+            .map(|ma| ma.reduce_empty_to_none())
+            .flatten();
         self.coin == other.coin && self_ma == other_ma
     }
 }
@@ -415,7 +422,8 @@ impl cbor_event::se::Serialize for Value {
         &self,
         serializer: &'se mut Serializer<W>,
     ) -> cbor_event::Result<&'se mut Serializer<W>> {
-        let multiasset = self.multiasset
+        let multiasset = self
+            .multiasset
             .as_ref()
             .map(|ma| ma.reduce_empty_to_none())
             .flatten();
@@ -571,7 +579,6 @@ pub(crate) fn read_bounded_bytes<R: BufRead + Seek>(
     }
 }
 
-
 pub struct CBORReadLen {
     deser_len: cbor_event::Len,
     read: u64,
@@ -718,21 +725,23 @@ pub fn internal_get_implicit_input(
     };
     let certificate_refund = match &certs {
         None => BigNum::zero(),
-        Some(certs) => certs
-            .certs
-            .iter()
-            .try_fold(BigNum::zero(), |acc, ref cert| match &cert.0 {
-                CertificateEnum::StakeDeregistration(cert) => {
-                    if let Some(coin) = cert.coin {
-                        acc.checked_add(&coin)
-                    } else {
-                        acc.checked_add(&key_deposit)
+        Some(certs) => {
+            certs
+                .certs
+                .iter()
+                .try_fold(BigNum::zero(), |acc, ref cert| match &cert.0 {
+                    CertificateEnum::StakeDeregistration(cert) => {
+                        if let Some(coin) = cert.coin {
+                            acc.checked_add(&coin)
+                        } else {
+                            acc.checked_add(&key_deposit)
+                        }
                     }
-                }
-                CertificateEnum::PoolRetirement(_) => acc.checked_add(&pool_deposit),
-                CertificateEnum::DRepDeregistration(cert) => acc.checked_add(&cert.coin),
-                _ => Ok(acc),
-            })?,
+                    CertificateEnum::PoolRetirement(_) => acc.checked_add(&pool_deposit),
+                    CertificateEnum::DRepDeregistration(cert) => acc.checked_add(&cert.coin),
+                    _ => Ok(acc),
+                })?
+        }
     };
 
     Ok(Value::new(
@@ -747,28 +756,32 @@ pub fn internal_get_deposit(
 ) -> Result<Coin, JsError> {
     let certificate_deposit = match &certs {
         None => BigNum::zero(),
-        Some(certs) => certs
-            .certs
-            .iter()
-            .try_fold(BigNum::zero(), |acc, ref cert| match &cert.0 {
-                CertificateEnum::PoolRegistration(_) => acc.checked_add(&pool_deposit),
-                CertificateEnum::StakeRegistration(cert) => {
-                    if let Some(coin) = cert.coin {
-                        acc.checked_add(&coin)
-                    } else {
-                        acc.checked_add(&key_deposit)
+        Some(certs) => {
+            certs
+                .certs
+                .iter()
+                .try_fold(BigNum::zero(), |acc, ref cert| match &cert.0 {
+                    CertificateEnum::PoolRegistration(_) => acc.checked_add(&pool_deposit),
+                    CertificateEnum::StakeRegistration(cert) => {
+                        if let Some(coin) = cert.coin {
+                            acc.checked_add(&coin)
+                        } else {
+                            acc.checked_add(&key_deposit)
+                        }
                     }
-                }
-                CertificateEnum::DRepRegistration(cert) => acc.checked_add(&cert.coin),
-                CertificateEnum::StakeRegistrationAndDelegation(cert) => {
-                    acc.checked_add(&cert.coin)
-                }
-                CertificateEnum::VoteRegistrationAndDelegation(cert) => acc.checked_add(&cert.coin),
-                CertificateEnum::StakeVoteRegistrationAndDelegation(cert) => {
-                    acc.checked_add(&cert.coin)
-                }
-                _ => Ok(acc),
-            })?,
+                    CertificateEnum::DRepRegistration(cert) => acc.checked_add(&cert.coin),
+                    CertificateEnum::StakeRegistrationAndDelegation(cert) => {
+                        acc.checked_add(&cert.coin)
+                    }
+                    CertificateEnum::VoteRegistrationAndDelegation(cert) => {
+                        acc.checked_add(&cert.coin)
+                    }
+                    CertificateEnum::StakeVoteRegistrationAndDelegation(cert) => {
+                        acc.checked_add(&cert.coin)
+                    }
+                    _ => Ok(acc),
+                })?
+        }
     };
     Ok(certificate_deposit)
 }
@@ -1184,56 +1197,67 @@ pub fn has_transaction_set_tag(tx_bytes: Vec<u8>) -> Result<TransactionSetsState
     has_transaction_set_tag_internal(&tx.body, Some(&tx.witness_set))
 }
 
-pub(crate) fn has_transaction_set_tag_internal(body: &TransactionBody, witnesses_set: Option<&TransactionWitnessSet>) -> Result<TransactionSetsState, JsError> {
+pub(crate) fn has_transaction_set_tag_internal(
+    body: &TransactionBody,
+    witnesses_set: Option<&TransactionWitnessSet>,
+) -> Result<TransactionSetsState, JsError> {
     let body_tag = has_transaction_body_set_tag(&body)?;
-    let witness_tag = witnesses_set.map(has_transaction_witnesses_set_tag).flatten();
+    let witness_tag = witnesses_set
+        .map(has_transaction_witnesses_set_tag)
+        .flatten();
 
     match (body_tag, witness_tag) {
-        (TransactionSetsState::AllSetsHaveTag, Some(TransactionSetsState::AllSetsHaveTag)) => Ok(TransactionSetsState::AllSetsHaveTag),
-        (TransactionSetsState::AllSetsHaveNoTag, Some(TransactionSetsState::AllSetsHaveNoTag)) => Ok(TransactionSetsState::AllSetsHaveNoTag),
+        (TransactionSetsState::AllSetsHaveTag, Some(TransactionSetsState::AllSetsHaveTag)) => {
+            Ok(TransactionSetsState::AllSetsHaveTag)
+        }
+        (TransactionSetsState::AllSetsHaveNoTag, Some(TransactionSetsState::AllSetsHaveNoTag)) => {
+            Ok(TransactionSetsState::AllSetsHaveNoTag)
+        }
         (TransactionSetsState::AllSetsHaveTag, None) => Ok(TransactionSetsState::AllSetsHaveTag),
-        (TransactionSetsState::AllSetsHaveNoTag, None) => Ok(TransactionSetsState::AllSetsHaveNoTag),
+        (TransactionSetsState::AllSetsHaveNoTag, None) => {
+            Ok(TransactionSetsState::AllSetsHaveNoTag)
+        }
         _ => Ok(TransactionSetsState::MixedSets),
     }
 }
 
-pub(crate) fn has_transaction_body_set_tag(body: &TransactionBody) -> Result<TransactionSetsState, JsError> {
+pub(crate) fn has_transaction_body_set_tag(
+    body: &TransactionBody,
+) -> Result<TransactionSetsState, JsError> {
     let mut has_tag = false;
-    let mut has_no_tag  = false;
+    let mut has_no_tag = false;
 
     match body.inputs.get_set_type() {
         CborSetType::Tagged => has_tag = true,
         CborSetType::Untagged => has_no_tag = true,
     }
-    body.reference_inputs.as_ref().map(|ref_inputs| {
-        match ref_inputs.get_set_type() {
+    body.reference_inputs
+        .as_ref()
+        .map(|ref_inputs| match ref_inputs.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    body.required_signers.as_ref().map(|required_signers| {
-        match required_signers.get_set_type() {
+        });
+    body.required_signers
+        .as_ref()
+        .map(|required_signers| match required_signers.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    body.voting_proposals.as_ref().map(|voting_proposals| {
-        match voting_proposals.get_set_type() {
+        });
+    body.voting_proposals
+        .as_ref()
+        .map(|voting_proposals| match voting_proposals.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    body.collateral.as_ref().map(|collateral_inputs| {
-        match collateral_inputs.get_set_type() {
+        });
+    body.collateral
+        .as_ref()
+        .map(|collateral_inputs| match collateral_inputs.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    body.certs.as_ref().map(|certs| {
-        match certs.get_set_type() {
-            CborSetType::Tagged => has_tag = true,
-            CborSetType::Untagged => has_no_tag = true,
-        }
+        });
+    body.certs.as_ref().map(|certs| match certs.get_set_type() {
+        CborSetType::Tagged => has_tag = true,
+        CborSetType::Untagged => has_no_tag = true,
     });
 
     body.certs.as_ref().map(|certs| {
@@ -1272,36 +1296,42 @@ pub(crate) fn has_transaction_body_set_tag(body: &TransactionBody) -> Result<Tra
     }
 }
 
-pub(crate) fn has_transaction_witnesses_set_tag(witness_set: &TransactionWitnessSet) -> Option<TransactionSetsState> {
+pub(crate) fn has_transaction_witnesses_set_tag(
+    witness_set: &TransactionWitnessSet,
+) -> Option<TransactionSetsState> {
     let mut has_tag = false;
-    let mut has_no_tag  = false;
+    let mut has_no_tag = false;
 
-    witness_set.bootstraps.as_ref().map(|bs| {
-        match bs.get_set_type() {
+    witness_set
+        .bootstraps
+        .as_ref()
+        .map(|bs| match bs.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    witness_set.vkeys.as_ref().map(|vkeys| {
-        match vkeys.get_set_type() {
+        });
+    witness_set
+        .vkeys
+        .as_ref()
+        .map(|vkeys| match vkeys.get_set_type() {
             CborSetType::Tagged => has_tag = true,
             CborSetType::Untagged => has_no_tag = true,
-        }
-    });
-    witness_set.plutus_data.as_ref().map(|plutus_data| {
-        match plutus_data.get_set_type() {
+        });
+    witness_set
+        .plutus_data
+        .as_ref()
+        .map(|plutus_data| match plutus_data.get_set_type() {
             Some(CborSetType::Tagged) => has_tag = true,
             Some(CborSetType::Untagged) => has_no_tag = true,
             None => has_tag = true,
-        }
-    });
-    witness_set.native_scripts.as_ref().map(|native_scripts| {
-        match native_scripts.get_set_type() {
+        });
+    witness_set
+        .native_scripts
+        .as_ref()
+        .map(|native_scripts| match native_scripts.get_set_type() {
             Some(CborSetType::Tagged) => has_tag = true,
             Some(CborSetType::Untagged) => has_no_tag = true,
             None => has_tag = true,
-        }
-    });
+        });
     witness_set.plutus_scripts.as_ref().map(|plutus_scripts| {
         match plutus_scripts.get_set_type(&Language::new_plutus_v1()) {
             Some(CborSetType::Tagged) => has_tag = true,

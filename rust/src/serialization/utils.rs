@@ -1,9 +1,11 @@
-use std::io::SeekFrom;
 use crate::*;
+use std::io::SeekFrom;
 
 /// TODO: this function can be removed in case `cbor_event` library ever gets a fix on their side
 /// See https://github.com/Emurgo/cardano-serialization-lib/pull/392
-pub(crate) fn read_nint<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<i128, DeserializeError> {
+pub(crate) fn read_nint<R: BufRead + Seek>(
+    raw: &mut Deserializer<R>,
+) -> Result<i128, DeserializeError> {
     let found = raw.cbor_type()?;
     if found != cbor_event::Type::NegativeInteger {
         return Err(cbor_event::Error::Expected(cbor_event::Type::NegativeInteger, found).into());
@@ -13,7 +15,7 @@ pub(crate) fn read_nint<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<
         cbor_event::Len::Indefinite => Err(cbor_event::Error::IndefiniteLenNotSupported(
             cbor_event::Type::NegativeInteger,
         )
-            .into()),
+        .into()),
         cbor_event::Len::Len(v) => {
             raw.advance(1 + len_sz)?;
             Ok(-(v as i128) - 1)

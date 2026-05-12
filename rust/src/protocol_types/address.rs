@@ -1,4 +1,4 @@
-use crate::legacy_address::{ExtendedAddr, ByronAddressType};
+use crate::legacy_address::{ByronAddressType, ExtendedAddr};
 use crate::*;
 use bech32::ToBase32;
 use ed25519_bip32::XPub;
@@ -79,8 +79,8 @@ impl MalformedAddress {
 
 impl serde::Serialize for MalformedAddress {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         let bech32 = self
             .to_address()
@@ -92,12 +92,11 @@ impl serde::Serialize for MalformedAddress {
 
 impl<'de> serde::de::Deserialize<'de> for MalformedAddress {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let bech32 = <String as serde::de::Deserialize>::deserialize(deserializer)?;
-        match Address::from_bech32(&bech32).map(|addr| addr.0)
-        {
+        match Address::from_bech32(&bech32).map(|addr| addr.0) {
             Ok(AddrType::Malformed(malformed_address)) => Ok(malformed_address),
             _ => Err(serde::de::Error::invalid_value(
                 serde::de::Unexpected::Str(&bech32),
@@ -150,7 +149,10 @@ impl ByronAddress {
     /// returns the byron protocol magic embedded in the address, or mainnet id if none is present
     /// note: for bech32 addresses, you need to use network_id instead
     pub fn byron_protocol_magic(&self) -> u32 {
-        self.0.attributes.protocol_magic.unwrap_or_else(|| NetworkInfo::mainnet().protocol_magic())
+        self.0
+            .attributes
+            .protocol_magic
+            .unwrap_or_else(|| NetworkInfo::mainnet().protocol_magic())
     }
 
     pub fn byron_address_kind(&self) -> ByronAddressType {
@@ -286,7 +288,6 @@ impl JsonSchema for Address {
 // other CBOR types
 #[wasm_bindgen]
 impl Address {
-
     pub fn kind(&self) -> AddressKind {
         match &self.0 {
             AddrType::Base(_) => AddressKind::Base,
@@ -375,7 +376,10 @@ impl Address {
         }
     }
 
-    fn from_bytes_internal_impl(data: &[u8], ignore_leftover_bytes: bool) -> Result<Address, DeserializeError> {
+    fn from_bytes_internal_impl(
+        data: &[u8],
+        ignore_leftover_bytes: bool,
+    ) -> Result<Address, DeserializeError> {
         use std::convert::TryInto;
         // header has 4 bits addr type discrim then 4 bits network discrim.
         // Copied from shelley.cddl:
@@ -402,7 +406,8 @@ impl Address {
             if ScriptHash::BYTE_COUNT != HASH_LEN {
                 return Err(DeserializeFailure::CustomError(
                     "ScriptHash and Ed25519KeyHash must have the same length".to_string(),
-                ).into());
+                )
+                .into());
             }
 
             // checks the /bit/ bit of the header for key vs scripthash then reads the credential starting at byte position /pos/
@@ -415,7 +420,7 @@ impl Address {
                 };
                 x
             };
-            let addr: Result<AddrType, DeserializeError>  = match (header & 0xF0) >> 4 {
+            let addr: Result<AddrType, DeserializeError> = match (header & 0xF0) >> 4 {
                 // base
                 0b0000 | 0b0001 | 0b0010 | 0b0011 => {
                     const BASE_ADDR_SIZE: usize = 1 + HASH_LEN * 2;
@@ -455,7 +460,7 @@ impl Address {
                                     )))
                                 }
                             }
-                            Err(err) => Err(err)
+                            Err(err) => Err(err),
                         }
                     }
                 }
@@ -481,7 +486,7 @@ impl Address {
                     if data.len() < REWARD_ADDR_SIZE {
                         Err(cbor_event::Error::NotEnough(data.len(), REWARD_ADDR_SIZE).into())
                     } else {
-                        if data.len() > REWARD_ADDR_SIZE && !ignore_leftover_bytes{
+                        if data.len() > REWARD_ADDR_SIZE && !ignore_leftover_bytes {
                             Err(cbor_event::Error::TrailingData.into())
                         } else {
                             Ok(AddrType::Reward(RewardAddress::new(

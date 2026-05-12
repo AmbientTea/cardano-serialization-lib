@@ -1,4 +1,7 @@
-use crate::tests::fakes::{fake_full_pool_params, fake_anchor, fake_genesis_delegate_hash, fake_genesis_hash, fake_key_hash, fake_script_hash, fake_vrf_key_hash};
+use crate::tests::fakes::{
+    fake_anchor, fake_full_pool_params, fake_genesis_delegate_hash, fake_genesis_hash,
+    fake_key_hash, fake_script_hash, fake_vrf_key_hash,
+};
 use crate::*;
 
 #[test]
@@ -25,8 +28,7 @@ fn committee_cold_resign_setters_getters_test() {
 fn committee_hot_auth_setters_getters_test() {
     let cold_cred_key_hash = Credential::from_keyhash(&fake_key_hash(1));
     let hot_cred_key_hash = Credential::from_keyhash(&fake_key_hash(1));
-    let committee_hot_auth =
-        CommitteeHotAuth::new(&cold_cred_key_hash, &hot_cred_key_hash);
+    let committee_hot_auth = CommitteeHotAuth::new(&cold_cred_key_hash, &hot_cred_key_hash);
 
     assert_eq!(
         committee_hot_auth.committee_cold_credential(),
@@ -181,7 +183,8 @@ fn stake_deregisration_setters_getters_test() {
     let stake_deregistration_1 = StakeDeregistration::new(&cred_key_hash);
 
     let coin = Coin::from(100u32);
-    let stake_deregistration_2 = StakeDeregistration::new_with_explicit_refund(&cred_key_hash, &coin);
+    let stake_deregistration_2 =
+        StakeDeregistration::new_with_explicit_refund(&cred_key_hash, &coin);
 
     assert_eq!(stake_deregistration_1.stake_credential(), cred_key_hash);
     assert_eq!(stake_deregistration_1.coin(), None);

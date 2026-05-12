@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl Serialize for Redeemers {
     fn serialize<'se, W: Write>(
@@ -31,14 +31,23 @@ impl Deserialize for Redeemers {
             match cbor_type {
                 cbor_event::Type::Array => Self::deserialize_as_array(raw),
                 cbor_event::Type::Map => Self::deserialize_as_map(raw),
-                _ => return Err(DeserializeFailure::ExpectedType("Array or Map".to_string(), cbor_type).into()),
+                _ => {
+                    return Err(DeserializeFailure::ExpectedType(
+                        "Array or Map".to_string(),
+                        cbor_type,
+                    )
+                    .into())
+                }
             }
-        })().map_err(|e| e.annotate("Redeemers"))
+        })()
+        .map_err(|e| e.annotate("Redeemers"))
     }
 }
 
 impl Redeemers {
-    fn deserialize_as_map<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<Self, DeserializeError> {
+    fn deserialize_as_map<R: BufRead + Seek>(
+        raw: &mut Deserializer<R>,
+    ) -> Result<Self, DeserializeError> {
         let mut arr = Vec::new();
         let len = raw.map()?;
         while match len {
@@ -56,7 +65,9 @@ impl Redeemers {
         })
     }
 
-    fn deserialize_as_array<R: BufRead + Seek>(raw: &mut Deserializer<R>) -> Result<Self, DeserializeError> {
+    fn deserialize_as_array<R: BufRead + Seek>(
+        raw: &mut Deserializer<R>,
+    ) -> Result<Self, DeserializeError> {
         let mut arr = Vec::new();
         let len = raw.array()?;
         while match len {

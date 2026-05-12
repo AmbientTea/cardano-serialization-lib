@@ -1,5 +1,7 @@
-use crate::{CredType, Credential, Ed25519KeyHash, GovernanceActionId, JsError, ScriptHash, TransactionHash};
-use bech32::{ToBase32, FromBase32};
+use crate::{
+    CredType, Credential, Ed25519KeyHash, GovernanceActionId, JsError, ScriptHash, TransactionHash,
+};
+use bech32::{FromBase32, ToBase32};
 use std::convert::TryFrom;
 
 #[derive(Debug, Clone, Copy)]
@@ -44,7 +46,7 @@ impl TryFrom<u8> for CredentialType {
 pub(crate) enum GovernanceIdentifier {
     GovCredential {
         gov_id_type: GovIdType,
-        credential: Credential
+        credential: Credential,
     },
     GovAction(GovernanceActionId),
 }
@@ -54,11 +56,13 @@ impl GovernanceIdentifier {
         match self {
             GovernanceIdentifier::GovCredential {
                 gov_id_type,
-                credential
+                credential,
             } => {
                 let (cred_type, cred_bytes) = match &credential.0 {
                     CredType::Key(key_hash) => (CredentialType::KeyHash, key_hash.to_bytes()),
-                    CredType::Script(script_hash) => (CredentialType::ScriptHash, script_hash.to_bytes()),
+                    CredType::Script(script_hash) => {
+                        (CredentialType::ScriptHash, script_hash.to_bytes())
+                    }
                 };
                 let header = ((*gov_id_type as u8) << 4) | (cred_type as u8);
                 let mut bytes = vec![header];
@@ -81,20 +85,20 @@ impl GovernanceIdentifier {
                     return Err(JsError::from_str("Invalid data length"));
                 }
                 let header = bytes[0];
-                let gov_id_type = GovIdType::try_from(header >> 4).
-                    map_err(|_| JsError::from_str("Invalid GovIdType"))?;
+                let gov_id_type = GovIdType::try_from(header >> 4)
+                    .map_err(|_| JsError::from_str("Invalid GovIdType"))?;
                 let credential_type = CredentialType::try_from(header & 0x0F)
                     .map_err(|_| JsError::from_str("Invalid CredentialType"))?;
                 let credential_bytes = bytes[1..].to_vec();
                 let credential = match credential_type {
-                    CredentialType::KeyHash => {
-                        Credential::from_keyhash(&Ed25519KeyHash::from_bytes(credential_bytes)
-                            .map_err(|_| JsError::from_str("Invalid key hash"))?)
-                    }
-                    CredentialType::ScriptHash => {
-                        Credential::from_scripthash(&ScriptHash::from_bytes(credential_bytes)
-                            .map_err(|_| JsError::from_str("Invalid script hash"))?)
-                    }
+                    CredentialType::KeyHash => Credential::from_keyhash(
+                        &Ed25519KeyHash::from_bytes(credential_bytes)
+                            .map_err(|_| JsError::from_str("Invalid key hash"))?,
+                    ),
+                    CredentialType::ScriptHash => Credential::from_scripthash(
+                        &ScriptHash::from_bytes(credential_bytes)
+                            .map_err(|_| JsError::from_str("Invalid script hash"))?,
+                    ),
                 };
                 Ok(GovernanceIdentifier::GovCredential {
                     gov_id_type,

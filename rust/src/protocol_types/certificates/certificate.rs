@@ -73,7 +73,6 @@ impl_to_from!(Certificate);
 
 #[wasm_bindgen]
 impl Certificate {
-
     pub fn new_stake_registration(stake_registration: &StakeRegistration) -> Self {
         Self(CertificateEnum::StakeRegistration(
             stake_registration.clone(),
@@ -102,7 +101,9 @@ impl Certificate {
     /// Since StakeDeregistration can represent stake_deregistration certificate or unreg_cert certificate, because both certificates have the same semantics.
     /// And in some cases you want to create an unreg_cert, this function is used to create an unreg_cert.
     /// The function will return an error if StakeDeregistration represents a stake_deregistration certificate.
-    pub fn new_unreg_cert(stake_deregistration: &StakeDeregistration) -> Result<Certificate, JsError> {
+    pub fn new_unreg_cert(
+        stake_deregistration: &StakeDeregistration,
+    ) -> Result<Certificate, JsError> {
         if stake_deregistration.coin.is_none() {
             return Err(JsError::from_str("coin is required"));
         } else {
@@ -138,17 +139,13 @@ impl Certificate {
         ))
     }
 
-    pub fn new_committee_hot_auth(
-        committee_hot_auth: &CommitteeHotAuth,
-    ) -> Self {
+    pub fn new_committee_hot_auth(committee_hot_auth: &CommitteeHotAuth) -> Self {
         Self(CertificateEnum::CommitteeHotAuth(
             committee_hot_auth.clone(),
         ))
     }
 
-    pub fn new_committee_cold_resign(
-        committee_cold_resign: &CommitteeColdResign,
-    ) -> Self {
+    pub fn new_committee_cold_resign(committee_cold_resign: &CommitteeColdResign) -> Self {
         Self(CertificateEnum::CommitteeColdResign(
             committee_cold_resign.clone(),
         ))
@@ -215,12 +212,8 @@ impl Certificate {
             CertificateEnum::MoveInstantaneousRewardsCert(_) => {
                 CertificateKind::MoveInstantaneousRewardsCert
             }
-            CertificateEnum::CommitteeHotAuth(_) => {
-                CertificateKind::CommitteeHotAuth
-            }
-            CertificateEnum::CommitteeColdResign(_) => {
-                CertificateKind::CommitteeColdResign
-            }
+            CertificateEnum::CommitteeHotAuth(_) => CertificateKind::CommitteeHotAuth,
+            CertificateEnum::CommitteeColdResign(_) => CertificateKind::CommitteeColdResign,
             CertificateEnum::DRepDeregistration(_) => CertificateKind::DRepDeregistration,
             CertificateEnum::DRepRegistration(_) => CertificateKind::DRepRegistration,
             CertificateEnum::DRepUpdate(_) => CertificateKind::DRepUpdate,

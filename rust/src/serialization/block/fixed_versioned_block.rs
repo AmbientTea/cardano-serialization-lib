@@ -8,9 +8,6 @@ impl Deserialize for FixedVersionedBlock {
         let era_code = u32::deserialize(raw)?;
         let block = FixedBlock::deserialize(raw)?;
         check_len_indefinite(raw, len)?;
-        Ok(FixedVersionedBlock {
-            block,
-            era_code,
-        })
+        Ok(FixedVersionedBlock { block, era_code })
     }
 }

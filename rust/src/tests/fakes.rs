@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crate::*;
 use crate::tests::helpers::harden;
+use crate::*;
 
 const MAX_VALUE_SIZE: u32 = 4000;
 const MAX_TX_SIZE: u32 = 8000; // might be out of date but suffices for our tests
@@ -157,7 +157,11 @@ pub(crate) fn fake_full_pool_params() -> PoolParams {
         cost: Coin::from(44_444u32),
         margin: UnitInterval::new(&BigNum::from(44_444u32), &BigNum::from(44_444u32)),
         reward_account: RewardAddress::new(2, &Credential::from_keyhash(&fake_key_hash(3))),
-        pool_owners: Ed25519KeyHashes::from_vec(vec![fake_key_hash(4), fake_key_hash(5)].into_iter().collect()),
+        pool_owners: Ed25519KeyHashes::from_vec(
+            vec![fake_key_hash(4), fake_key_hash(5)]
+                .into_iter()
+                .collect(),
+        ),
         relays: Relays(vec![Relay::new_multi_host_name(&MultiHostName::new(
             &DNSRecordSRV::new("iohk.io".to_string()).unwrap(),
         ))]),
@@ -231,9 +235,7 @@ pub(crate) fn fake_tx_builder_full(
             &SubCoin::new(&BigNum(577), &BigNum(10000)),
             &SubCoin::new(&BigNum(721), &BigNum(10000000)),
         ))
-        .ref_script_coins_per_byte(
-            &UnitInterval::new(&BigNum(1), &BigNum(2)),
-        )
+        .ref_script_coins_per_byte(&UnitInterval::new(&BigNum(1), &BigNum(2)))
         .build()
         .unwrap();
     TransactionBuilder::new(&cfg)
@@ -251,9 +253,7 @@ pub(crate) fn fake_realistic_tx_builder_config_builder() -> TransactionBuilderCo
             &SubCoin::new(&BigNum(577), &BigNum(10000)),
             &SubCoin::new(&BigNum(721), &BigNum(10000000)),
         ))
-        .ref_script_coins_per_byte(
-            &UnitInterval::new(&BigNum(1), &BigNum(2)),
-        )
+        .ref_script_coins_per_byte(&UnitInterval::new(&BigNum(1), &BigNum(2)))
 }
 
 pub(crate) fn fake_tx_builder(
@@ -368,19 +368,13 @@ pub(crate) fn fake_enterprise_address(index: u32) -> Address {
         .derive(index)
         .to_public();
     let spend_cred = Credential::from_keyhash(&spend.to_raw_key().hash());
-    let addr = EnterpriseAddress::new(
-        NetworkInfo::testnet_preprod().network_id(),
-        &spend_cred,
-    );
+    let addr = EnterpriseAddress::new(NetworkInfo::testnet_preprod().network_id(), &spend_cred);
     addr.to_address()
 }
 
 pub(crate) fn fake_enterprise_script_address(index: u8) -> Address {
     let spend_cred = Credential::from_scripthash(&fake_script_hash(index));
-    let addr = EnterpriseAddress::new(
-        NetworkInfo::testnet_preprod().network_id(),
-        &spend_cred,
-    );
+    let addr = EnterpriseAddress::new(NetworkInfo::testnet_preprod().network_id(), &spend_cred);
     addr.to_address()
 }
 
@@ -397,7 +391,7 @@ pub(crate) fn fake_pointer_address(index: u32) -> Address {
     let addr = PointerAddress::new(
         NetworkInfo::testnet_preprod().network_id(),
         &spend_cred,
-        &pointer
+        &pointer,
     );
     addr.to_address()
 }
@@ -408,7 +402,7 @@ pub(crate) fn fake_pointer_script_address(index: u8) -> Address {
     let addr = PointerAddress::new(
         NetworkInfo::testnet_preprod().network_id(),
         &spend_cred,
-        &pointer
+        &pointer,
     );
     addr.to_address()
 }
@@ -422,10 +416,7 @@ pub(crate) fn fake_reward_address(index: u32) -> RewardAddress {
         .derive(index)
         .to_public();
     let stake_cred = Credential::from_keyhash(&stake.to_raw_key().hash());
-    RewardAddress::new(
-        NetworkInfo::testnet_preprod().network_id(),
-        &stake_cred,
-    )
+    RewardAddress::new(NetworkInfo::testnet_preprod().network_id(), &stake_cred)
 }
 
 pub(crate) fn fake_malformed_address() -> Address {
@@ -437,7 +428,8 @@ pub(crate) fn fake_rich_tx_builder(with_collateral: bool) -> TransactionBuilder 
     let input = TransactionInput::new(&fake_tx_hash(1), 0);
     let address = fake_base_address(1);
     let mut input_builder = TxInputsBuilder::new();
-    input_builder.add_regular_input(&address, &input, &Value::new(&Coin::from(u64::MAX / 2)))
+    input_builder
+        .add_regular_input(&address, &input, &Value::new(&Coin::from(u64::MAX / 2)))
         .expect("should add input");
     tx_builder.set_inputs(&input_builder);
     if with_collateral {
@@ -455,12 +447,16 @@ pub(crate) fn fake_tx_builder_with_amount(
     let input = TransactionInput::new(&fake_tx_hash(1), 0);
     let address = fake_base_address(1);
     let mut input_builder = TxInputsBuilder::new();
-    input_builder.add_regular_input(&address, &input, &Value::new(&Coin::from(amount))).expect("should add input");
+    input_builder
+        .add_regular_input(&address, &input, &Value::new(&Coin::from(amount)))
+        .expect("should add input");
     tx_builder.set_inputs(&input_builder);
     if with_collateral {
         let col_input = TransactionInput::new(&fake_tx_hash(1), 0);
         let mut col_input_builder = TxInputsBuilder::new();
-        col_input_builder.add_regular_input(&address, &col_input, &Value::new(&Coin::from(u64::MAX / 2))).expect("should add input");
+        col_input_builder
+            .add_regular_input(&address, &col_input, &Value::new(&Coin::from(u64::MAX / 2)))
+            .expect("should add input");
         tx_builder.set_collateral(&col_input_builder);
     }
 
@@ -477,17 +473,21 @@ pub(crate) fn fake_tx_builder_with_amount_and_deposit_params(
         &fake_linear_fee(44, 155381),
         COINS_PER_UTXO_BYTE,
         pool_deposit,
-        key_deposit
+        key_deposit,
     );
     let input = TransactionInput::new(&fake_tx_hash(1), 0);
     let address = fake_base_address(1);
     let mut input_builder = TxInputsBuilder::new();
-    input_builder.add_regular_input(&address, &input, &Value::new(&Coin::from(amount))).expect("should add input");
+    input_builder
+        .add_regular_input(&address, &input, &Value::new(&Coin::from(amount)))
+        .expect("should add input");
     tx_builder.set_inputs(&input_builder);
     if with_collateral {
         let col_input = TransactionInput::new(&fake_tx_hash(1), 0);
         let mut col_input_builder = TxInputsBuilder::new();
-        col_input_builder.add_regular_input(&address, &col_input, &Value::new(&Coin::from(u64::MAX / 2))).expect("should add input");
+        col_input_builder
+            .add_regular_input(&address, &col_input, &Value::new(&Coin::from(u64::MAX / 2)))
+            .expect("should add input");
         tx_builder.set_collateral(&col_input_builder);
     }
 
@@ -527,7 +527,6 @@ pub(crate) fn fake_redeemer_zero_cost(x: u8) -> Redeemer {
         &ExUnits::new(&BigNum::zero(), &BigNum::zero()),
     )
 }
-
 
 pub(crate) fn fake_bytes_32(x: u8) -> Vec<u8> {
     vec![
@@ -601,7 +600,10 @@ pub(crate) fn fake_tx_output(input_hash_byte: u8) -> TransactionOutput {
 }
 
 pub(crate) fn fake_tx_output2(input_hash_byte: u8, val: u64) -> TransactionOutput {
-    TransactionOutput::new(&fake_base_address(input_hash_byte as u32), &fake_value2(val))
+    TransactionOutput::new(
+        &fake_base_address(input_hash_byte as u32),
+        &fake_value2(val),
+    )
 }
 
 pub(crate) fn fake_vkey() -> Vkey {
@@ -659,7 +661,6 @@ pub(crate) fn fake_assets(assets: &[(u8, u64)]) -> Assets {
             .collect(),
     )
 }
-
 
 pub(crate) fn fake_multiasset(policies: &[(u8, &[(u8, u64)])]) -> MultiAsset {
     MultiAsset(

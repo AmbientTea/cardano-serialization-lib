@@ -1,8 +1,8 @@
 use crate::*;
+use itertools::Itertools;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::iter::Map;
-use itertools::Itertools;
 use std::ops::Deref;
 use std::slice;
 use std::sync::Arc;
@@ -105,10 +105,8 @@ impl Hash for Certificates {
 
 impl<'a> IntoIterator for &'a Certificates {
     type Item = &'a Certificate;
-    type IntoIter = Map<
-        slice::Iter<'a, Arc<Certificate>>,
-        fn(&'a Arc<Certificate>) -> &'a Certificate,
-    >;
+    type IntoIter =
+        Map<slice::Iter<'a, Arc<Certificate>>, fn(&'a Arc<Certificate>) -> &'a Certificate>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.certs.iter().map(|rc| rc.as_ref())

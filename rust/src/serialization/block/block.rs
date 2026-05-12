@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl cbor_event::se::Serialize for Block {
     fn serialize<'se, W: Write>(
@@ -33,7 +33,7 @@ impl Deserialize for Block {
             let transaction_witness_sets = (|| -> Result<_, DeserializeError> {
                 Ok(TransactionWitnessSets::deserialize(raw)?)
             })()
-                .map_err(|e| e.annotate("transaction_witness_sets"))?;
+            .map_err(|e| e.annotate("transaction_witness_sets"))?;
             let auxiliary_data_set =
                 (|| -> Result<_, DeserializeError> { Ok(AuxiliaryDataSet::deserialize(raw)?) })()
                     .map_err(|e| e.annotate("auxiliary_data_set"))?;
@@ -59,7 +59,7 @@ impl Deserialize for Block {
                 }
                 Ok(arr)
             })()
-                .map_err(|e| e.annotate("invalid_transactions"))?;
+            .map_err(|e| e.annotate("invalid_transactions"))?;
             match len {
                 cbor_event::Len::Len(_) => (),
                 cbor_event::Len::Indefinite => match raw.special()? {
@@ -75,6 +75,6 @@ impl Deserialize for Block {
                 invalid_transactions,
             })
         })()
-            .map_err(|e| e.annotate("Block"))
+        .map_err(|e| e.annotate("Block"))
     }
 }

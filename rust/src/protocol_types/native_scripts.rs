@@ -2,9 +2,7 @@ use crate::*;
 use std::slice::{Iter, IterMut};
 
 #[wasm_bindgen]
-#[derive(
-    Clone, Debug, Default
-)]
+#[derive(Clone, Debug, Default)]
 pub struct NativeScripts {
     pub(crate) scripts: Vec<NativeScript>,
     pub(crate) cbor_tag_type: Option<CborSetType>,
@@ -113,12 +111,10 @@ impl From<Vec<&NativeScript>> for NativeScripts {
 
 impl From<&NativeScripts> for Ed25519KeyHashes {
     fn from(scripts: &NativeScripts) -> Self {
-        scripts
-            .iter()
-            .fold(Ed25519KeyHashes::new(), |mut set, s| {
-                set.extend_move(Ed25519KeyHashes::from(s));
-                set
-            })
+        scripts.iter().fold(Ed25519KeyHashes::new(), |mut set, s| {
+            set.extend_move(Ed25519KeyHashes::from(s));
+            set
+        })
     }
 }
 
@@ -164,4 +160,3 @@ impl JsonSchema for NativeScripts {
         Vec::<NativeScript>::json_schema(gen)
     }
 }
-

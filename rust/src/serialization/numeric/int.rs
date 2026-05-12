@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::read_nint;
+use crate::*;
 
 impl cbor_event::se::Serialize for Int {
     fn serialize<'se, W: Write>(
@@ -23,6 +23,6 @@ impl Deserialize for Int {
                 _ => Err(DeserializeFailure::NoVariantMatched.into()),
             }
         })()
-            .map_err(|e| e.annotate("Int"))
+        .map_err(|e| e.annotate("Int"))
     }
 }

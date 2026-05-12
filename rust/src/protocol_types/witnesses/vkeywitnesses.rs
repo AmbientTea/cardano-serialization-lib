@@ -1,19 +1,15 @@
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
-use std::slice;
-use std::iter::Map;
-use std::collections::HashSet;
-use std::sync::Arc;
+use crate::*;
 use itertools::Itertools;
 use schemars::JsonSchema;
-use crate::*;
+use std::collections::HashSet;
+use std::hash::{Hash, Hasher};
+use std::iter::Map;
+use std::ops::Deref;
+use std::slice;
+use std::sync::Arc;
 
 #[wasm_bindgen]
-#[derive(
-    Clone,
-    Debug,
-    Default
-)]
+#[derive(Clone, Debug, Default)]
 pub struct Vkeywitnesses {
     witnesses: Vec<Arc<Vkeywitness>>,
     dedup: HashSet<Arc<Vkeywitness>>,
@@ -115,10 +111,8 @@ impl Vkeywitnesses {
 
 impl<'a> IntoIterator for &'a Vkeywitnesses {
     type Item = &'a Vkeywitness;
-    type IntoIter = Map<
-        slice::Iter<'a, Arc<Vkeywitness>>,
-        fn(&'a Arc<Vkeywitness>) -> &'a Vkeywitness,
-    >;
+    type IntoIter =
+        Map<slice::Iter<'a, Arc<Vkeywitness>>, fn(&'a Arc<Vkeywitness>) -> &'a Vkeywitness>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.witnesses.iter().map(|rc| rc.as_ref())

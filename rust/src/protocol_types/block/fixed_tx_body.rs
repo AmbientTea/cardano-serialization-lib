@@ -15,7 +15,6 @@ from_hex!(FixedTransactionBody);
 
 #[wasm_bindgen]
 impl FixedTransactionBody {
-
     pub fn transaction_body(&self) -> TransactionBody {
         self.body.clone()
     }

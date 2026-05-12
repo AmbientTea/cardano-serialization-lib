@@ -273,9 +273,8 @@ fn test_auxiliary_data_roundtrip() {
     auxiliary_data_roundtrip(&PlutusScripts::from_vec(vec![script_v1.clone()], None));
     auxiliary_data_roundtrip(&PlutusScripts::from_vec(vec![script_v2.clone()], None));
     auxiliary_data_roundtrip(&PlutusScripts::from_vec(vec![script_v3.clone()], None));
-    auxiliary_data_roundtrip(&PlutusScripts::from_vec(vec![
-        script_v1.clone(),
-        script_v2.clone(),
-        script_v3.clone(),
-    ], None));
+    auxiliary_data_roundtrip(&PlutusScripts::from_vec(
+        vec![script_v1.clone(), script_v2.clone(), script_v3.clone()],
+        None,
+    ));
 }

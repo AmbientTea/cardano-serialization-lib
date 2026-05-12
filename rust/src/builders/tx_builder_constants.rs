@@ -10,7 +10,6 @@ pub(crate) struct TxBuilderConstants();
 
 #[allow(dead_code)]
 impl TxBuilderConstants {
-
     pub(crate) fn plutus_default_cost_models() -> Costmdls {
         TxBuilderConstants::plutus_conway_cost_models()
     }

@@ -1,5 +1,5 @@
-use std::fmt::Formatter;
 use crate::*;
+use std::fmt::Formatter;
 
 #[wasm_bindgen]
 #[derive(

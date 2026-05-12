@@ -1,8 +1,8 @@
-use std::convert::TryInto;
 use crate::protocol_types::{CBORSpecial, Deserialize};
 use crate::{DeserializeError, DeserializeFailure, Nonce};
 use cbor_event::de::Deserializer;
 use cbor_event::se::Serializer;
+use std::convert::TryInto;
 
 impl cbor_event::se::Serialize for Nonce {
     fn serialize<'se, W: std::io::Write>(

@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::{is_break_tag, skip_set_tag};
+use crate::*;
 
 impl cbor_event::se::Serialize for TransactionInputs {
     fn serialize<'se, W: Write>(
@@ -32,7 +32,7 @@ impl Deserialize for TransactionInputs {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("TransactionInputs"))?;
+        .map_err(|e| e.annotate("TransactionInputs"))?;
         let mut inputs = TransactionInputs::from_vec(arr);
         if has_set_tag {
             inputs.set_set_type(CborSetType::Tagged);

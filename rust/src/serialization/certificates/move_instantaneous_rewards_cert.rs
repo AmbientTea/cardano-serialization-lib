@@ -1,8 +1,10 @@
 use crate::serialization::map_names::CertificateIndexNames;
-use crate::serialization::utils::{check_len, deserialize_and_check_index, is_break_tag, serialize_and_check_index};
+use crate::serialization::utils::{
+    check_len, deserialize_and_check_index, is_break_tag, serialize_and_check_index,
+};
 use crate::*;
-use num_traits::ToPrimitive;
 use hashlink::LinkedHashMap;
+use num_traits::ToPrimitive;
 
 impl cbor_event::se::Serialize for MIRToStakeCredentials {
     fn serialize<'se, W: Write>(

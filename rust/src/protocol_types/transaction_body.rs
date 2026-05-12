@@ -46,8 +46,8 @@ impl TransactionBody {
     /// Returns a Slot32 (u32) value in case the underlying original BigNum (u64) value is within the limits.
     /// Otherwise will just raise an error.
     #[deprecated(
-    since = "10.1.0",
-    note = "Possible boundary error. Use ttl_bignum instead"
+        since = "10.1.0",
+        note = "Possible boundary error. Use ttl_bignum instead"
     )]
     pub fn ttl(&self) -> Result<Option<Slot32>, JsError> {
         match self.ttl {
@@ -106,8 +106,8 @@ impl TransactionBody {
     /// !!! DEPRECATED !!!
     /// Uses outdated slot number format.
     #[deprecated(
-    since = "10.1.0",
-    note = "Underlying value capacity of slot (BigNum u64) bigger then Slot32. Use set_validity_start_interval_bignum instead."
+        since = "10.1.0",
+        note = "Underlying value capacity of slot (BigNum u64) bigger then Slot32. Use set_validity_start_interval_bignum instead."
     )]
     pub fn set_validity_start_interval(&mut self, validity_start_interval: Slot32) {
         self.validity_start_interval = Some(validity_start_interval.into())
@@ -126,8 +126,8 @@ impl TransactionBody {
     /// Otherwise will just raise an error.
     /// Use `.validity_start_interval_bignum` instead.
     #[deprecated(
-    since = "10.1.0",
-    note = "Possible boundary error. Use validity_start_interval_bignum instead"
+        since = "10.1.0",
+        note = "Possible boundary error. Use validity_start_interval_bignum instead"
     )]
     pub fn validity_start_interval(&self) -> Result<Option<Slot32>, JsError> {
         match self.validity_start_interval.clone() {
@@ -239,8 +239,8 @@ impl TransactionBody {
     /// This constructor uses outdated slot number format for the ttl value.
     /// Use `.new_tx_body` and then `.set_ttl` instead
     #[deprecated(
-    since = "10.1.0",
-    note = "Underlying value capacity of ttl (BigNum u64) bigger then Slot32. Use new_tx_body instead."
+        since = "10.1.0",
+        note = "Underlying value capacity of ttl (BigNum u64) bigger then Slot32. Use new_tx_body instead."
     )]
     pub fn new(
         inputs: &TransactionInputs,

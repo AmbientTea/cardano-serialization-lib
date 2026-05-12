@@ -1,9 +1,9 @@
+use crate::builders::fakes::fake_private_key;
 use crate::fees::{min_fee_for_size, LinearFee};
 use crate::serialization::map_names::{TxBodyNames, WitnessSetNames};
 use crate::*;
 use num_traits::ToPrimitive;
 use std::collections::HashSet;
-use crate::builders::fakes::fake_private_key;
 
 pub(super) struct CborCalculator();
 

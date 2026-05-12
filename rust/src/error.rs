@@ -1,7 +1,7 @@
-use std::string::ToString;
 use super::*;
 use crate::chain_crypto;
 use cbor_event::{self};
+use std::string::ToString;
 
 // This file was code-generated using an experimental CDDL to rust tool:
 // https://github.com/Emurgo/cddl-codegen
@@ -149,7 +149,11 @@ impl std::fmt::Display for DeserializeError {
     }
 }
 
-#[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+#[cfg(not(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+)))]
 impl std::error::Error for DeserializeError {}
 
 impl From<DeserializeError> for JsError {
@@ -197,16 +201,28 @@ impl From<chain_crypto::PublicKeyError> for DeserializeError {
 // Generic string error that is replaced with JsError on wasm builds but still usable from non-wasm builds
 // since JsError panics when used for non-constants in non-wasm builds even just creating one
 
-#[cfg(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm")))]
+#[cfg(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+))]
 pub type JsError = JsValue;
 
-#[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+#[cfg(not(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+)))]
 #[derive(Debug, Clone)]
 pub struct JsError {
     msg: String,
 }
 
-#[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+#[cfg(not(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+)))]
 impl JsError {
     pub fn from_str(s: &str) -> Self {
         Self { msg: s.to_owned() }
@@ -218,14 +234,22 @@ impl JsError {
     }
 }
 
-#[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+#[cfg(not(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+)))]
 impl std::fmt::Display for JsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.msg)
     }
 }
 
-#[cfg(not(all(target_arch = "wasm32", not(target_os = "emscripten"), not(feature = "dont-expose-wasm"))))]
+#[cfg(not(all(
+    target_arch = "wasm32",
+    not(target_os = "emscripten"),
+    not(feature = "dont-expose-wasm")
+)))]
 impl std::error::Error for JsError {}
 
 pub(crate) enum BuilderError {
@@ -238,7 +262,7 @@ pub(crate) enum BuilderError {
     MintBuilderDifferentScriptType,
     MintBuilderDifferentRedeemerDataAndExUnits(String, String),
     MintBuilderDifferentWitnessTypeRef,
-    MintBuilderDifferentWitnessTypeNonRef
+    MintBuilderDifferentWitnessTypeNonRef,
 }
 
 impl BuilderError {

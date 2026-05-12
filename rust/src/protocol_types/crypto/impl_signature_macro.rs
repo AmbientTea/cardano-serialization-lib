@@ -3,7 +3,7 @@ macro_rules! impl_signature {
     ($name:ident, $signee_type:ty, $verifier_type:ty) => {
         #[wasm_bindgen]
         #[derive(Clone, Debug, Hash, Eq, PartialEq)]
-        pub struct $name(pub (crate) chain_crypto::Signature<$signee_type, $verifier_type>);
+        pub struct $name(pub(crate) chain_crypto::Signature<$signee_type, $verifier_type>);
 
         #[wasm_bindgen]
         impl $name {
@@ -56,7 +56,9 @@ macro_rules! impl_signature {
             fn deserialize<R: std::io::BufRead>(
                 raw: &mut Deserializer<R>,
             ) -> Result<Self, DeserializeError> {
-                Ok(Self(chain_crypto::Signature::from_binary(raw.bytes()?.as_ref())?))
+                Ok(Self(chain_crypto::Signature::from_binary(
+                    raw.bytes()?.as_ref(),
+                )?))
             }
         }
 

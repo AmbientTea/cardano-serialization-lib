@@ -28,16 +28,18 @@ impl DeserializeEmbeddedGroup for TreasuryWithdrawalsAction {
         raw: &mut Deserializer<R>,
         len: cbor_event::Len,
     ) -> Result<Self, DeserializeError> {
-
         let has_policy_hash = len == cbor_event::Len::Len(3) || len == cbor_event::Len::Indefinite;
 
         //for sancho backwards compatibility
         if !has_policy_hash {
             check_len(len, 2, "(proposal_index, { reward_account => coin })")?;
         } else {
-            check_len(len, 3, "(proposal_index, { reward_account => coin }, policy_hash / null)")?;
+            check_len(
+                len,
+                3,
+                "(proposal_index, { reward_account => coin }, policy_hash / null)",
+            )?;
         }
-
 
         let desired_index = VotingProposalIndexNames::TreasuryWithdrawalsAction.to_u64();
         deserialize_and_check_index(raw, desired_index, "proposal_index")?;
@@ -50,6 +52,9 @@ impl DeserializeEmbeddedGroup for TreasuryWithdrawalsAction {
             None
         };
 
-        return Ok(TreasuryWithdrawalsAction { withdrawals , policy_hash});
+        return Ok(TreasuryWithdrawalsAction {
+            withdrawals,
+            policy_hash,
+        });
     }
 }

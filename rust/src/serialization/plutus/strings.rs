@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl cbor_event::se::Serialize for Strings {
     fn serialize<'se, W: Write>(
@@ -30,7 +30,7 @@ impl Deserialize for Strings {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("Strings"))?;
+        .map_err(|e| e.annotate("Strings"))?;
         Ok(Self(arr))
     }
 }

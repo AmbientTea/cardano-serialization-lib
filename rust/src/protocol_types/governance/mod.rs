@@ -22,7 +22,7 @@ pub use governance_action_id::*;
 mod governance_action_ids;
 pub use governance_action_ids::*;
 
-mod proposals;
 mod cip129_decoder;
+mod proposals;
 
 pub use proposals::*;

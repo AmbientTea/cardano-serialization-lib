@@ -1,6 +1,6 @@
+use crate::serialization::utils::is_break_tag;
 use crate::*;
 use std::collections::BTreeMap;
-use crate::serialization::utils::is_break_tag;
 
 impl Serialize for TreasuryWithdrawals {
     fn serialize<'se, W: Write>(

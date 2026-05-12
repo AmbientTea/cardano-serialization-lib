@@ -3,7 +3,7 @@ pub trait NoneOrEmpty {
 }
 
 pub trait EmptyToNone: Sized {
-   fn empty_to_none(self) -> Option<Self>;
+    fn empty_to_none(self) -> Option<Self>;
 }
 
 impl<T: NoneOrEmpty> NoneOrEmpty for &T {

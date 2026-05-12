@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::is_break_tag;
+use crate::*;
 
 impl cbor_event::se::Serialize for Languages {
     fn serialize<'se, W: Write>(
@@ -30,7 +30,7 @@ impl Deserialize for Languages {
             }
             Ok(())
         })()
-            .map_err(|e| e.annotate("Languages"))?;
+        .map_err(|e| e.annotate("Languages"))?;
         Ok(Self(arr))
     }
 }

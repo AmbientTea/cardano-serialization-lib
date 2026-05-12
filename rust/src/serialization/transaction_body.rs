@@ -165,7 +165,7 @@ impl Deserialize for TransactionBody {
                                 (|| -> Result<_, DeserializeError> {
                                     Ok(TransactionInputs::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("inputs"))?,
+                                .map_err(|e| e.annotate("inputs"))?,
                             );
                         }
                         1 => {
@@ -176,7 +176,7 @@ impl Deserialize for TransactionBody {
                                 (|| -> Result<_, DeserializeError> {
                                     Ok(TransactionOutputs::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("outputs"))?,
+                                .map_err(|e| e.annotate("outputs"))?,
                             );
                         }
                         2 => {
@@ -188,7 +188,7 @@ impl Deserialize for TransactionBody {
                                     (|| -> Result<_, DeserializeError> {
                                         Ok(Coin::deserialize(raw)?)
                                     })()
-                                        .map_err(|e| e.annotate("fee"))?,
+                                    .map_err(|e| e.annotate("fee"))?,
                                 );
                         }
                         3 => {
@@ -200,7 +200,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(SlotBigNum::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("ttl"))?,
+                                .map_err(|e| e.annotate("ttl"))?,
                             );
                         }
                         4 => {
@@ -212,7 +212,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Certificates::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("certs"))?,
+                                .map_err(|e| e.annotate("certs"))?,
                             );
                         }
                         5 => {
@@ -224,7 +224,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Withdrawals::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("withdrawals"))?,
+                                .map_err(|e| e.annotate("withdrawals"))?,
                             );
                         }
                         6 => {
@@ -236,7 +236,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Update::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("update"))?,
+                                .map_err(|e| e.annotate("update"))?,
                             );
                         }
                         7 => {
@@ -248,7 +248,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(AuxiliaryDataHash::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("auxiliary_data_hash"))?,
+                                .map_err(|e| e.annotate("auxiliary_data_hash"))?,
                             );
                         }
                         8 => {
@@ -260,7 +260,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(SlotBigNum::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("validity_start_interval"))?,
+                                .map_err(|e| e.annotate("validity_start_interval"))?,
                             );
                         }
                         9 => {
@@ -272,7 +272,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Mint::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("mint"))?,
+                                .map_err(|e| e.annotate("mint"))?,
                             );
                         }
                         11 => {
@@ -284,7 +284,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(ScriptDataHash::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("script_data_hash"))?,
+                                .map_err(|e| e.annotate("script_data_hash"))?,
                             );
                         }
                         13 => {
@@ -296,7 +296,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(TransactionInputs::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("collateral"))?,
+                                .map_err(|e| e.annotate("collateral"))?,
                             );
                         }
                         14 => {
@@ -308,7 +308,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Ed25519KeyHashes::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("required_signers"))?,
+                                .map_err(|e| e.annotate("required_signers"))?,
                             );
                         }
                         15 => {
@@ -320,7 +320,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(NetworkId::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("network_id"))?,
+                                .map_err(|e| e.annotate("network_id"))?,
                             );
                         }
                         16 => {
@@ -332,7 +332,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(TransactionOutput::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("collateral_return"))?,
+                                .map_err(|e| e.annotate("collateral_return"))?,
                             );
                         }
                         17 => {
@@ -344,7 +344,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Coin::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("total_collateral"))?,
+                                .map_err(|e| e.annotate("total_collateral"))?,
                             );
                         }
                         18 => {
@@ -356,7 +356,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(TransactionInputs::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("reference_inputs"))?,
+                                .map_err(|e| e.annotate("reference_inputs"))?,
                             );
                         }
                         19 => {
@@ -368,7 +368,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(VotingProcedures::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("voting_procedures"))?,
+                                .map_err(|e| e.annotate("voting_procedures"))?,
                             );
                         }
                         20 => {
@@ -380,7 +380,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(VotingProposals::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("voting_proposals"))?,
+                                .map_err(|e| e.annotate("voting_proposals"))?,
                             );
                         }
                         21 => {
@@ -392,7 +392,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Coin::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("current_treasury_value"))?,
+                                .map_err(|e| e.annotate("current_treasury_value"))?,
                             );
                         }
                         22 => {
@@ -404,7 +404,7 @@ impl Deserialize for TransactionBody {
                                     read_len.read_elems(1)?;
                                     Ok(Coin::deserialize(raw)?)
                                 })()
-                                    .map_err(|e| e.annotate("donation"))?,
+                                .map_err(|e| e.annotate("donation"))?,
                             );
                         }
                         unknown_key => {
@@ -418,7 +418,7 @@ impl Deserialize for TransactionBody {
                             return Err(DeserializeFailure::UnknownKey(Key::Str(
                                 unknown_key.to_owned(),
                             ))
-                                .into())
+                            .into())
                         }
                     },
                     CBORType::Special => match len {
@@ -473,6 +473,6 @@ impl Deserialize for TransactionBody {
                 current_treasury_value,
             })
         })()
-            .map_err(|e| e.annotate("TransactionBody"))
+        .map_err(|e| e.annotate("TransactionBody"))
     }
 }

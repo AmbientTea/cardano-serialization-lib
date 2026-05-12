@@ -1,4 +1,7 @@
-use crate::tests::fakes::{fake_anchor, fake_anchor_data_hash, fake_genesis_delegate_hash, fake_genesis_hash, fake_key_hash, fake_pool_metadata_hash, fake_script_hash, fake_vrf_key_hash};
+use crate::tests::fakes::{
+    fake_anchor, fake_anchor_data_hash, fake_genesis_delegate_hash, fake_genesis_hash,
+    fake_key_hash, fake_pool_metadata_hash, fake_script_hash, fake_vrf_key_hash,
+};
 use crate::*;
 
 macro_rules! to_from_test {
@@ -35,10 +38,7 @@ fn committee_cold_resign_key_hash_ser_round_trip() {
     let cert = CommitteeColdResign::new(&Credential::from_keyhash(&fake_key_hash(1)));
     let cert_wrapped = Certificate::new_committee_cold_resign(&cert);
     to_from_test!(CommitteeColdResign, cert, cert_wrapped);
-    assert_eq!(
-        cert,
-        cert_wrapped.as_committee_cold_resign().unwrap()
-    );
+    assert_eq!(cert, cert_wrapped.as_committee_cold_resign().unwrap());
 }
 
 #[test]
@@ -48,10 +48,7 @@ fn committee_cold_resign_with_anchor_ser_round_trip() {
         CommitteeColdResign::new_with_anchor(&Credential::from_keyhash(&fake_key_hash(1)), &anchor);
     let cert_wrapped = Certificate::new_committee_cold_resign(&cert);
     to_from_test!(CommitteeColdResign, cert, cert_wrapped);
-    assert_eq!(
-        cert,
-        cert_wrapped.as_committee_cold_resign().unwrap()
-    );
+    assert_eq!(cert, cert_wrapped.as_committee_cold_resign().unwrap());
 }
 
 #[test]
@@ -59,10 +56,7 @@ fn committee_cold_resign_script_hash_ser_round_trip() {
     let cert = CommitteeColdResign::new(&Credential::from_scripthash(&fake_script_hash(1)));
     let cert_wrapped = Certificate::new_committee_cold_resign(&cert);
     to_from_test!(CommitteeColdResign, cert, cert_wrapped);
-    assert_eq!(
-        cert,
-        cert_wrapped.as_committee_cold_resign().unwrap()
-    );
+    assert_eq!(cert, cert_wrapped.as_committee_cold_resign().unwrap());
 }
 
 #[test]
@@ -73,10 +67,7 @@ fn committee_hot_auth_ser_round_trip() {
     );
     let cert_wrapped = Certificate::new_committee_hot_auth(&cert);
     to_from_test!(CommitteeHotAuth, cert, cert_wrapped);
-    assert_eq!(
-        cert,
-        cert_wrapped.as_committee_hot_auth().unwrap()
-    );
+    assert_eq!(cert, cert_wrapped.as_committee_hot_auth().unwrap());
 }
 
 #[test]
@@ -189,7 +180,8 @@ fn move_instantaneous_reward_to_stake_creds_ser_round_trip() {
 #[test]
 fn pool_registration_ser_round_trip() {
     let staking_cred = Credential::from_keyhash(&fake_key_hash(1));
-    let reward_address = RewardAddress::new(NetworkInfo::testnet_preprod().network_id(), &staking_cred);
+    let reward_address =
+        RewardAddress::new(NetworkInfo::testnet_preprod().network_id(), &staking_cred);
     let mut owners = Ed25519KeyHashes::new();
     owners.add(&fake_key_hash(2));
     owners.add(&fake_key_hash(3));
@@ -283,9 +275,7 @@ fn stake_deregistration_with_coin_ser_round_trip() {
 
 #[test]
 fn stake_deregistration_getter_test() {
-    let cert = StakeDeregistration::new(
-        &Credential::from_keyhash(&fake_key_hash(1))
-    );
+    let cert = StakeDeregistration::new(&Credential::from_keyhash(&fake_key_hash(1)));
     let cert_wrapped = Certificate::new_stake_deregistration(&cert);
     to_from_test!(StakeDeregistration, cert, cert_wrapped);
     assert_eq!(cert, cert_wrapped.as_stake_deregistration().unwrap());
@@ -306,9 +296,7 @@ fn unreg_cert_getter_test() {
 
 #[test]
 fn unreg_cert_error_test() {
-    let cert = StakeDeregistration::new(
-        &Credential::from_keyhash(&fake_key_hash(1))
-    );
+    let cert = StakeDeregistration::new(&Credential::from_keyhash(&fake_key_hash(1)));
     let res = Certificate::new_unreg_cert(&cert);
     assert!(res.is_err());
 }

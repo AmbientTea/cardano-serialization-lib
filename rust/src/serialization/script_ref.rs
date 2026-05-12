@@ -11,7 +11,7 @@ impl Deserialize for ScriptRefEnum {
                         len,
                         "[id, native_or_putus_script]",
                     ))
-                        .into());
+                    .into());
                 }
             }
             let script_ref = match raw.unsigned_integer()? {
@@ -28,7 +28,7 @@ impl Deserialize for ScriptRefEnum {
                         found: Key::Uint(n),
                         expected: Key::Uint(0),
                     }
-                        .into())
+                    .into())
                 }
             };
             if let cbor_event::Len::Indefinite = len {
@@ -38,7 +38,7 @@ impl Deserialize for ScriptRefEnum {
             }
             Ok(script_ref)
         })()
-            .map_err(|e| e.annotate("ScriptRefEnum"))
+        .map_err(|e| e.annotate("ScriptRefEnum"))
     }
 }
 
@@ -73,11 +73,11 @@ impl Deserialize for ScriptRef {
                         found: tag,
                         expected: 24,
                     }
-                        .into());
+                    .into());
                 }
             }
         })()
-            .map_err(|e| e.annotate("ScriptRef"))
+        .map_err(|e| e.annotate("ScriptRef"))
     }
 }
 

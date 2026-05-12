@@ -1,16 +1,12 @@
+use crate::*;
+use itertools::Itertools;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::sync::Arc;
-use itertools::Itertools;
-use crate::*;
 
 #[wasm_bindgen]
-#[derive(
-    Clone,
-    Debug,
-    Default
-)]
+#[derive(Clone, Debug, Default)]
 pub struct Credentials {
     pub(crate) credentials: Vec<Arc<Credential>>,
     pub(crate) dedup: HashSet<Arc<Credential>>,
@@ -50,7 +46,7 @@ impl Credentials {
 
     /// Add a new `Credential` to the set.
     /// Returns `true` if the element was not already present in the set.
-    pub fn add(&mut self,credential: &Credential) -> bool {
+    pub fn add(&mut self, credential: &Credential) -> bool {
         let credential_rc = Arc::new(credential.clone());
         if self.dedup.insert(credential_rc.clone()) {
             self.credentials.push(credential_rc);
@@ -103,7 +99,6 @@ impl Credentials {
     pub(crate) fn set_set_type(&mut self, cbor_set_type: CborSetType) {
         self.cbor_set_type = cbor_set_type;
     }
-
 }
 
 impl PartialEq for Credentials {
@@ -128,8 +123,8 @@ impl Ord for Credentials {
 
 impl serde::Serialize for Credentials {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         self.credentials
             .iter()
@@ -147,12 +142,10 @@ impl Hash for Credentials {
 
 impl<'de> serde::de::Deserialize<'de> for Credentials {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
-        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(
-            deserializer,
-        )?;
+        let vec = <Vec<_> as serde::de::Deserialize>::deserialize(deserializer)?;
         Ok(Self::from_vec(vec))
     }
 }

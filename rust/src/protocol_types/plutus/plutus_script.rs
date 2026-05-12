@@ -117,8 +117,8 @@ impl PlutusScript {
 
 impl serde::Serialize for PlutusScript {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&hex::encode(&self.bytes))
     }
@@ -126,8 +126,8 @@ impl serde::Serialize for PlutusScript {
 
 impl<'de> serde::de::Deserialize<'de> for PlutusScript {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: serde::de::Deserializer<'de>,
+    where
+        D: serde::de::Deserializer<'de>,
     {
         let s = <String as serde::de::Deserialize>::deserialize(deserializer)?;
         hex::decode(&s)

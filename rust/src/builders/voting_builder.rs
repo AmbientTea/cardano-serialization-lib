@@ -178,7 +178,8 @@ impl VotingBuilder {
     pub(crate) fn get_script_ref_inputs_with_size(
         &self,
     ) -> impl Iterator<Item = (&TransactionInput, usize)> {
-        self.votes.iter()
+        self.votes
+            .iter()
             .filter_map(|(_, voter_votes)| voter_votes.script_witness.as_ref())
             .filter_map(|script_witness| script_witness.get_script_ref_input_with_size())
     }

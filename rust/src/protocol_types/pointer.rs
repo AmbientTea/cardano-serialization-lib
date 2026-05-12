@@ -79,7 +79,6 @@ impl Pointer {
     }
 }
 
-
 fn decode_pointer(data: &[u8]) -> Result<(Pointer, usize), DeserializeError> {
     let mut cursor = Cursor::new(data);
     let mut offset = 0;
@@ -101,11 +100,11 @@ fn analyze_and_convert(slot_no: u64, tx_ix: u64, cert_ix: u64) -> Pointer {
 
     // If any value exceeds its allowed maximum, normalization sets the pointer to (0,0,0) to indicate an invalid or out-of-range pointer.
     if needs_normalization {
-            Pointer {
-                slot: 0u64.into(),
-                tx_index: 0u64.into(),
-                cert_index: 0u64.into(),
-            }
+        Pointer {
+            slot: 0u64.into(),
+            tx_index: 0u64.into(),
+            cert_index: 0u64.into(),
+        }
     } else {
         Pointer {
             slot: slot_no.into(),
@@ -131,11 +130,14 @@ pub(crate) fn decode_variable_length_u64(
     name: &'static str,
 ) -> Result<u64, DeserializeError> {
     let mut acc = 0u64;
-    
+
     loop {
         // Equivalent of guardLength name 1 buf
         if cursor.position() >= cursor.get_ref().len() as u64 {
-            return Err(DeserializeError::new(name, DeserializeFailure::VariableLenNatDecodeFailed));
+            return Err(DeserializeError::new(
+                name,
+                DeserializeFailure::VariableLenNatDecodeFailed,
+            ));
         }
 
         // Equivalent of: offset <- state (\off -> (off, off + 1))
@@ -146,7 +148,7 @@ pub(crate) fn decode_variable_length_u64(
         let b8 = byte[0];
 
         // Equivalent of: acc `shiftL` 7 .|. fromIntegral (b8 `clearBit` 7)
-        acc = (acc << 7)  | ((b8 & 0x7F) as u64);
+        acc = (acc << 7) | ((b8 & 0x7F) as u64);
 
         // Equivalent of: if b8 `testBit` 7
         if (b8 & 0x80) == 0 {

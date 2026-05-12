@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::{is_break_tag, skip_set_tag};
+use crate::*;
 
 impl cbor_event::se::Serialize for VotingProposals {
     fn serialize<'se, W: Write>(

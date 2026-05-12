@@ -116,8 +116,11 @@ impl DeserializeEmbeddedGroup for FixedTransaction {
         .map_err(|_| {
             DeserializeError::new(
                 "FixedTransaction",
-                DeserializeFailure::CustomError("Failed to create FixedTransaction. \
-                Smth wrong with FixedTransaction::new_with_original_bytes()".to_string()),
+                DeserializeFailure::CustomError(
+                    "Failed to create FixedTransaction. \
+                Smth wrong with FixedTransaction::new_with_original_bytes()"
+                        .to_string(),
+                ),
             )
         })
     }

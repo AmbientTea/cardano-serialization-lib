@@ -1,6 +1,9 @@
-use crate::*;
+use crate::tests::fakes::{
+    fake_asset_name, fake_bootsrap_witness, fake_key_hash, fake_plutus_script, fake_policy_id,
+    fake_tx_input, fake_vkey_witness,
+};
 use crate::tests::helpers::harden;
-use crate::tests::fakes::{fake_plutus_script, fake_bootsrap_witness, fake_tx_input, fake_vkey_witness, fake_key_hash, fake_policy_id, fake_asset_name};
+use crate::*;
 
 #[test]
 fn native_script_hash() {
@@ -54,9 +57,12 @@ fn asset_name_ord() {
     assert_eq!(map.keys(), AssetNames(vec![name3, name1, name2]));
 
     let mut map2 = MintAssets::new();
-    map2.insert(&name11, &Int::new_i32(1)).expect("insert failed");
-    map2.insert(&name33, &Int::new_i32(1)).expect("insert failed");
-    map2.insert(&name22, &Int::new_i32(1)).expect("insert failed");
+    map2.insert(&name11, &Int::new_i32(1))
+        .expect("insert failed");
+    map2.insert(&name33, &Int::new_i32(1))
+        .expect("insert failed");
+    map2.insert(&name22, &Int::new_i32(1))
+        .expect("insert failed");
 
     assert_eq!(map2.keys(), AssetNames(vec![name33, name11, name22]));
 }
@@ -71,12 +77,20 @@ fn mint_to_multiasset() {
     let amount2 = BigNum::from_str("5678").unwrap();
 
     let mut mass1 = MintAssets::new();
-    mass1.insert(&name1, &Int::new(&amount1)).expect("insert failed");
-    mass1.insert(&name2, &Int::new(&amount2)).expect("insert failed");
+    mass1
+        .insert(&name1, &Int::new(&amount1))
+        .expect("insert failed");
+    mass1
+        .insert(&name2, &Int::new(&amount2))
+        .expect("insert failed");
 
     let mut mass2 = MintAssets::new();
-    mass2.insert(&name1, &Int::new(&amount2)).expect("insert failed");
-    mass2.insert(&name2, &Int::new(&amount1)).expect("insert failed");
+    mass2
+        .insert(&name1, &Int::new(&amount2))
+        .expect("insert failed");
+    mass2
+        .insert(&name2, &Int::new(&amount1))
+        .expect("insert failed");
 
     let mut mint = Mint::new();
     mint.insert(&policy_id1, &mass1);
@@ -108,12 +122,20 @@ fn mint_to_negative_multiasset() {
     let amount2 = BigNum::from_str("5678").unwrap();
 
     let mut mass1 = MintAssets::new();
-    mass1.insert(&name1, &Int::new(&amount1)).expect("insert failed");
-    mass1.insert(&name2, &Int::new_negative(&amount2)).expect("insert failed");
+    mass1
+        .insert(&name1, &Int::new(&amount1))
+        .expect("insert failed");
+    mass1
+        .insert(&name2, &Int::new_negative(&amount2))
+        .expect("insert failed");
 
     let mut mass2 = MintAssets::new();
-    mass2.insert(&name1, &Int::new_negative(&amount1)).expect("insert failed");
-    mass2.insert(&name2, &Int::new(&amount2)).expect("insert failed");
+    mass2
+        .insert(&name1, &Int::new_negative(&amount1))
+        .expect("insert failed");
+    mass2
+        .insert(&name2, &Int::new(&amount2))
+        .expect("insert failed");
 
     let mut mint = Mint::new();
     mint.insert(&policy_id1, &mass1);
@@ -156,10 +178,14 @@ fn mint_to_negative_multiasset_empty() {
     let amount1 = BigNum::from_str("1234").unwrap();
 
     let mut mass1 = MintAssets::new();
-    mass1.insert(&name1, &Int::new(&amount1)).expect("insert failed");
+    mass1
+        .insert(&name1, &Int::new(&amount1))
+        .expect("insert failed");
 
     let mut mass2 = MintAssets::new();
-    mass2.insert(&name1, &Int::new_negative(&amount1)).expect("insert failed");
+    mass2
+        .insert(&name1, &Int::new_negative(&amount1))
+        .expect("insert failed");
 
     let mut mint1 = Mint::new();
     mint1.insert(&policy_id1, &mass1);
@@ -203,8 +229,7 @@ fn native_scripts_get_pubkeys() {
     assert_eq!(pks1.len(), 1);
     assert!(pks1.contains(&keyhash1));
 
-    let pks2 =
-        Ed25519KeyHashes::from(&NativeScript::new_timelock_start(&TimelockStart::new(123)));
+    let pks2 = Ed25519KeyHashes::from(&NativeScript::new_timelock_start(&TimelockStart::new(123)));
     assert_eq!(pks2.len(), 0);
 
     let pks3 = Ed25519KeyHashes::from(&NativeScript::new_script_all(&ScriptAll::new(
@@ -252,7 +277,10 @@ fn protocol_params_update_cbor_json_roundtrip() {
     orig_ppu.set_pool_deposit(&Coin::from(4u32));
     orig_ppu.set_max_epoch(5);
     orig_ppu.set_n_opt(6);
-    orig_ppu.set_pool_pledge_influence(&UnitInterval::new(&BigNum::from(7u32), &BigNum::from(77u32)));
+    orig_ppu.set_pool_pledge_influence(&UnitInterval::new(
+        &BigNum::from(7u32),
+        &BigNum::from(77u32),
+    ));
     orig_ppu.set_expansion_rate(&UnitInterval::new(&BigNum::from(8u32), &BigNum::from(9u32)));
     orig_ppu.set_treasury_growth_rate(&UnitInterval::new(
         &BigNum::from(10u32),
@@ -296,7 +324,10 @@ fn protocol_params_update_cbor_json_roundtrip() {
     orig_ppu.set_governance_action_deposit(&Coin::from(35u32));
     orig_ppu.set_drep_deposit(&Coin::from(36u32));
     orig_ppu.set_drep_inactivity_period(37);
-    orig_ppu.set_ref_script_coins_per_byte(&UnitInterval::new(&BigNum::from(38u32), &BigNum::from(39u32)));
+    orig_ppu.set_ref_script_coins_per_byte(&UnitInterval::new(
+        &BigNum::from(38u32),
+        &BigNum::from(39u32),
+    ));
 
     let encoded_cbor = orig_ppu.to_bytes();
     let decoded_from_cbor = ProtocolParamUpdate::from_bytes(encoded_cbor).unwrap();
@@ -308,11 +339,14 @@ fn protocol_params_update_cbor_json_roundtrip() {
     let decoded_from_json = ProtocolParamUpdate::from_json(&encoded_json).unwrap();
 
     assert_eq!(decoded_from_json, orig_ppu);
-    assert_eq!(decoded_from_json.to_json().unwrap(), orig_ppu.to_json().unwrap());
+    assert_eq!(
+        decoded_from_json.to_json().unwrap(),
+        orig_ppu.to_json().unwrap()
+    );
 }
 
 #[test]
-fn witnesses_deduplication_test(){
+fn witnesses_deduplication_test() {
     let spend = tests::fakes::fake_root_key_15()
         .derive(harden(1854))
         .derive(harden(1815))
@@ -323,17 +357,11 @@ fn witnesses_deduplication_test(){
 
     let spending_hash = spend.to_raw_key().hash();
 
-    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(
-        &spending_hash,
-    ));
+    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(&spending_hash));
 
     let mut internal_scripts = NativeScripts::new();
     internal_scripts.add(&native_scripts_1);
-    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(
-        1,
-        &internal_scripts,
-    ));
-
+    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(1, &internal_scripts));
 
     let native_scripts_1_1 = native_scripts_1.clone();
 
@@ -341,7 +369,6 @@ fn witnesses_deduplication_test(){
     native_scripts.add(&native_scripts_1);
     native_scripts.add(&native_scripts_2);
     native_scripts.add(&native_scripts_1_1);
-
 
     // recall: this includes keys for input, certs and withdrawals
     let vkey_witness_1 = fake_vkey_witness(1);
@@ -418,7 +445,7 @@ fn witnesses_deduplication_test(){
 }
 
 #[test]
-fn min_ref_script_fee_test(){
+fn min_ref_script_fee_test() {
     let cost = UnitInterval::new(&BigNum::from(1u32), &BigNum::from(2u32));
     let total_size = 500;
     let min_fee = min_ref_script_fee(total_size, &cost).unwrap();
@@ -426,7 +453,7 @@ fn min_ref_script_fee_test(){
 }
 
 #[test]
-fn min_ref_script_fee_test_fail(){
+fn min_ref_script_fee_test_fail() {
     let cost = UnitInterval::new(&BigNum::from(1u32), &BigNum::from(0u32));
     let total_size = 500;
     let min_fee = min_ref_script_fee(total_size, &cost);
@@ -514,7 +541,7 @@ fn plutus_scripts_dedup_on_tx_witnesses_set() {
     plutus_scrips.add(&plutus_script_v3_1);
     assert_eq!(plutus_scrips.len(), 9);
 
-    let mut  tx_wit_set = TransactionWitnessSet::new();
+    let mut tx_wit_set = TransactionWitnessSet::new();
     tx_wit_set.set_plutus_scripts(&plutus_scrips);
 
     let plutus_scripts_from = tx_wit_set.plutus_scripts().unwrap();
@@ -563,7 +590,7 @@ fn plutus_scripts_no_dedup_on_auxdata() {
     plutus_scrips.add(&plutus_script_v3_1);
     assert_eq!(plutus_scrips.len(), 9);
 
-    let mut  aux_data = AuxiliaryData::new();
+    let mut aux_data = AuxiliaryData::new();
     aux_data.set_plutus_scripts(&plutus_scrips);
 
     let plutus_scripts_from = aux_data.plutus_scripts().unwrap();
@@ -591,16 +618,11 @@ fn plutus_scripts_no_dedup_on_auxdata() {
 fn native_scripts_dedup_on_tx_witnesses_set() {
     let keyhash1 = fake_key_hash(1);
 
-    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(
-        &keyhash1,
-    ));
+    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(&keyhash1));
 
     let mut internal_scripts = NativeScripts::new();
     internal_scripts.add(&native_scripts_1);
-    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(
-        1,
-        &internal_scripts,
-    ));
+    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(1, &internal_scripts));
 
     let mut native_scripts = NativeScripts::new();
     native_scripts.add(&native_scripts_1);
@@ -608,7 +630,7 @@ fn native_scripts_dedup_on_tx_witnesses_set() {
     native_scripts.add(&native_scripts_1);
     assert_eq!(native_scripts.len(), 3);
 
-    let mut  tx_wit_set = TransactionWitnessSet::new();
+    let mut tx_wit_set = TransactionWitnessSet::new();
     tx_wit_set.set_native_scripts(&native_scripts);
 
     let native_scripts_from = tx_wit_set.native_scripts().unwrap();
@@ -628,16 +650,11 @@ fn native_scripts_dedup_on_tx_witnesses_set() {
 fn native_scripts_no_dedup_on_auxdata() {
     let keyhash1 = fake_key_hash(1);
 
-    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(
-        &keyhash1,
-    ));
+    let native_scripts_1 = NativeScript::new_script_pubkey(&ScriptPubkey::new(&keyhash1));
 
     let mut internal_scripts = NativeScripts::new();
     internal_scripts.add(&native_scripts_1);
-    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(
-        1,
-        &internal_scripts,
-    ));
+    let native_scripts_2 = NativeScript::new_script_n_of_k(&ScriptNOfK::new(1, &internal_scripts));
 
     let mut native_scripts = NativeScripts::new();
     native_scripts.add(&native_scripts_1);
@@ -645,7 +662,7 @@ fn native_scripts_no_dedup_on_auxdata() {
     native_scripts.add(&native_scripts_1);
     assert_eq!(native_scripts.len(), 3);
 
-    let mut  aux_data = AuxiliaryData::new();
+    let mut aux_data = AuxiliaryData::new();
     aux_data.set_native_scripts(&native_scripts);
 
     let native_scripts_from = aux_data.native_scripts().unwrap();
@@ -672,7 +689,7 @@ fn plutus_data_dedup_on_tx_witnesses_set() {
     datum.add(&datum_1);
     assert_eq!(datum.len(), 3);
 
-    let mut  tx_wit_set = TransactionWitnessSet::new();
+    let mut tx_wit_set = TransactionWitnessSet::new();
     tx_wit_set.set_plutus_data(&datum);
 
     let datums_from = tx_wit_set.plutus_data().unwrap();
@@ -1185,7 +1202,9 @@ mod builder_methods {
             let ma2 = multi_asset! {
                 fake_policy_id(2) => assets! { fake_asset_name(2) => BigNum::from(20u64) },
             };
-            let v = Value::lovelace(1u64).with_multiasset(ma1).with_multiasset(ma2.clone());
+            let v = Value::lovelace(1u64)
+                .with_multiasset(ma1)
+                .with_multiasset(ma2.clone());
             assert_eq!(v.multiasset(), Some(ma2));
         }
     }

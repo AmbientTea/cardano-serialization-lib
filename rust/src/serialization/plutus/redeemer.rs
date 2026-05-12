@@ -1,5 +1,5 @@
-use crate::*;
 use crate::serialization::utils::check_len_indefinite;
+use crate::*;
 
 impl cbor_event::se::Serialize for Redeemer {
     fn serialize<'se, W: Write>(

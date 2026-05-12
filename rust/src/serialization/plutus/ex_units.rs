@@ -31,6 +31,6 @@ impl Deserialize for ExUnits {
             }
             Ok(ExUnits { mem, steps })
         })()
-            .map_err(|e| e.annotate("ExUnits"))
+        .map_err(|e| e.annotate("ExUnits"))
     }
 }

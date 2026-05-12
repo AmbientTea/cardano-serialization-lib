@@ -1,7 +1,7 @@
-use std::convert::TryFrom;
-use bech32::ToBase32;
-use crate::*;
 use crate::protocol_types::governance::cip129_decoder::{GovIdType, GovernanceIdentifier};
+use crate::*;
+use bech32::ToBase32;
+use std::convert::TryFrom;
 
 #[derive(
     Clone,
@@ -112,21 +112,24 @@ impl DRep {
                     "Cannot convert AlwaysNoConfidence to bech32",
                 )),
             }?;
-            bech32::encode(&hrp, data.to_base32()).map_err(|e| JsError::from_str(&format! {"{:?}", e}))
+            bech32::encode(&hrp, data.to_base32())
+                .map_err(|e| JsError::from_str(&format! {"{:?}", e}))
         }
     }
 
     pub fn from_bech32(bech32_str: &str) -> Result<DRep, JsError> {
         let (hrp, u5data) =
             bech32::decode(bech32_str).map_err(|e| JsError::from_str(&e.to_string()))?;
-        let data: Vec<u8> = bech32::FromBase32::from_base32(&u5data)
-            .map_err(|e: bech32::Error| JsError::from_str(&format!("Malformed DRep base32: {}", &e.to_string())))?;
+        let data: Vec<u8> =
+            bech32::FromBase32::from_base32(&u5data).map_err(|e: bech32::Error| {
+                JsError::from_str(&format!("Malformed DRep base32: {}", &e.to_string()))
+            })?;
         let prefix = hrp.as_str();
         match prefix {
             "drep" => match data.len() {
                 28 => Self::from_bech32_internal(prefix, data),
                 29 => GovernanceIdentifier::from_bech32(bech32_str)?.try_into(),
-                _ => Err(JsError::from_str("Malformed DRep (drep1 byte len)"))
+                _ => Err(JsError::from_str("Malformed DRep (drep1 byte len)")),
             },
             _ => Self::from_bech32_internal(prefix, data),
         }
@@ -160,9 +163,15 @@ impl TryFrom<&DRep> for Credential {
     fn try_from(drep: &DRep) -> Result<Self, Self::Error> {
         match &drep.0 {
             DRepEnum::KeyHash(keyhash) => Ok(Credential(CredType::Key(keyhash.clone()))),
-            DRepEnum::ScriptHash(scripthash) => Ok(Credential(CredType::Script(scripthash.clone()))),
-            DRepEnum::AlwaysAbstain => Err(JsError::from_str("Cannot convert AlwaysAbstain to Credential")),
-            DRepEnum::AlwaysNoConfidence => Err(JsError::from_str("Cannot convert AlwaysNoConfidence to Credential")),
+            DRepEnum::ScriptHash(scripthash) => {
+                Ok(Credential(CredType::Script(scripthash.clone())))
+            }
+            DRepEnum::AlwaysAbstain => Err(JsError::from_str(
+                "Cannot convert AlwaysAbstain to Credential",
+            )),
+            DRepEnum::AlwaysNoConfidence => Err(JsError::from_str(
+                "Cannot convert AlwaysNoConfidence to Credential",
+            )),
         }
     }
 }
@@ -188,7 +197,9 @@ impl TryFrom<GovernanceIdentifier> for DRep {
                 gov_id_type: GovIdType::DRep,
                 credential,
             } => Ok(DRep::new_from_credential(&credential)),
-            _ => Err(JsError::from_str("Cannot convert GovernanceActionId to DRep")),
+            _ => Err(JsError::from_str(
+                "Cannot convert GovernanceActionId to DRep",
+            )),
         }
     }
 }

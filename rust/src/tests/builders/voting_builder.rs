@@ -1,5 +1,8 @@
 use crate::fees::min_fee_for_size;
-use crate::tests::fakes::{fake_change_address, fake_linear_fee, fake_plutus_script, fake_rich_tx_builder, fake_key_hash, fake_script_hash, fake_tx_hash, fake_vkey};
+use crate::tests::fakes::{
+    fake_change_address, fake_key_hash, fake_linear_fee, fake_plutus_script, fake_rich_tx_builder,
+    fake_script_hash, fake_tx_hash, fake_vkey,
+};
 use crate::*;
 
 #[test]
@@ -186,12 +189,8 @@ fn voting_builder_plutus_ref_witness() {
     let action_id = GovernanceActionId::new(&fake_tx_hash(1), 1);
     let vote = VotingProcedure::new(VoteKind::No);
 
-    let script_source = PlutusScriptSource::new_ref_input(
-        &script_hash,
-        &ref_input,
-        &Language::new_plutus_v2(),
-        0
-    );
+    let script_source =
+        PlutusScriptSource::new_ref_input(&script_hash, &ref_input, &Language::new_plutus_v2(), 0);
     let witness = PlutusWitness::new_with_ref_without_datum(&script_source, &redeemer);
     builder
         .add_with_plutus_witness(&voter, &action_id, &vote, &witness)
@@ -228,7 +227,9 @@ fn voting_builder_plutus_ref_witness() {
 
     tx_builder.calc_script_data_hash(&cost_models).unwrap();
 
-    tx_builder.add_change_if_needed(&fake_change_address()).unwrap();
+    tx_builder
+        .add_change_if_needed(&fake_change_address())
+        .unwrap();
 
     let tx = tx_builder.build_tx().unwrap();
 
@@ -333,8 +334,7 @@ fn voting_builder_native_script_ref_witness() {
     script_signers.add(&key_hash);
 
     let ref_input = TransactionInput::new(&fake_tx_hash(5), 0);
-    let mut script_source =
-        NativeScriptSource::new_ref_input(&script_hash, &ref_input, 0);
+    let mut script_source = NativeScriptSource::new_ref_input(&script_hash, &ref_input, 0);
     script_source.set_required_signers(&script_signers);
     builder
         .add_with_native_script(&voter, &action_id, &vote, &script_source)
